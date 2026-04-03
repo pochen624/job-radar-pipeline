@@ -31,23 +31,25 @@ def scrape_international(
     all_jobs = []
 
     for keyword in keywords:
-        try:
-            df = scrape_jobs(
-                site_name=["linkedin", "indeed", "glassdoor"],
-                search_term=keyword,
-                location=location,
-                results_wanted=results_per_site,
-                hours_old=hours_old,
-                country_indeed="Taiwan",
-                description_format="markdown"
-            )
+        # 分別嘗試各平台，避免一個失敗導致全部中斷
+        for site in ["linkedin", "indeed"]:
+            try:
+                df = scrape_jobs(
+                    site_name=[site],
+                    search_term=keyword,
+                    location=location,
+                    results_wanted=results_per_site,
+                    hours_old=hours_old,
+                    description_format="markdown"
+                )
 
-            if df is not None and not df.empty:
-                jobs = _normalize_jobspy_df(df, keyword)
-                all_jobs.extend(jobs)
+                if df is not None and not df.empty:
+                    jobs = _normalize_jobspy_df(df, keyword)
+                    all_jobs.extend(jobs)
+                    print(f"   [{site}] {keyword}: {len(jobs)} jobs")
 
-        except Exception as e:
-            print(f"[International] 爬取失敗（關鍵字：{keyword}）：{e}")
+            except Exception as e:
+                print(f"   [{site}] {keyword}: {e}")
 
         time.sleep(3)
 

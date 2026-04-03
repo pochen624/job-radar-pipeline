@@ -8,14 +8,14 @@ keywords:
 # 地點設定
 location:
   taiwan: "6001001000"       # 104 地區代碼（台北市）
-  international: "Taiwan"    # JobSpy(LinkedIn/Indeed) 地點
+  international: ""           # JobSpy(LinkedIn/Indeed) 地點（空=不限）
 
 # 篩選條件
 filters:
   min_salary: 50000          # 最低月薪（台幣），0 = 不限制
   job_type: "fulltime"       # fulltime / parttime / internship / contract
   hours_old: 72              # 只抓幾小時內的職缺（GitHub Actions 建議 72）
-  results_per_site: 50       # 每個平台每次抓幾筆
+  results_per_site: 20       # 每個平台每次抓幾筆
 
 # AI 評分設定
 ai_scoring:
