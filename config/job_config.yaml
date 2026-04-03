@@ -1,0 +1,34 @@
+# 求職關鍵字（可多個，系統會分別搜尋再合併）
+keywords:
+  - "軟體工程師"
+  - "Python developer"
+  - "資料科學家"
+  - "AI researcher"
+
+# 地點設定
+location:
+  taiwan: "6001001000"       # 104 地區代碼（台北市）
+  international: "Taiwan"    # JobSpy(LinkedIn/Indeed) 地點
+
+# 篩選條件
+filters:
+  min_salary: 50000          # 最低月薪（台幣），0 = 不限制
+  job_type: "fulltime"       # fulltime / parttime / internship / contract
+  hours_old: 24              # 只抓幾小時內的職缺（建議 24）
+  results_per_site: 50       # 每個平台每次抓幾筆
+
+# AI 評分設定
+ai_scoring:
+  candidate_profile: |
+    應徵者背景：具備 3 年 Python 開發經驗，熟悉機器學習與資料分析，
+    有 FastAPI 和 Docker 使用經驗，希望找科技公司或新創，月薪目標 60k 以上。
+  min_score_to_notify: 70    # 幾分以上才推播通知
+  min_score_to_save: 40      # 幾分以上才存進 Google Sheets
+
+# 啟用的平台（true/false）
+platforms:
+  taiwan_104: true
+  taiwan_cakeresume: true
+  taiwan_yourator: true
+  international_linkedin: true
+  international_indeed: true

@@ -1,0 +1,33 @@
+# 環境變數（含金鑰）
+.env
+
+# SQLite 資料庫
+database/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# 虛擬環境
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Google 服務帳號金鑰
+*.json
+!package.json

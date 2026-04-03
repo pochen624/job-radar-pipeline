@@ -1,0 +1,22 @@
+# 爬蟲核心
+python-jobspy>=0.1.0
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
+
+# AI 評分
+google-generativeai>=0.8.0
+
+# 資料處理
+pandas>=2.2.0
+pyyaml>=6.0.0
+
+# 去重資料庫
+# 使用 Python 內建 sqlite3，無需額外安裝
+
+# Google Sheets
+gspread>=6.0.0
+google-auth>=2.29.0
+
+# 環境變數
+python-dotenv>=1.0.0
