@@ -1,34 +1,55 @@
-# 求職關鍵字（可多個，系統會分別搜尋再合併）
+# 搜尋關鍵字（AI + 跨領域，中英並用；系統會分別搜尋再合併）
 keywords:
-  - "軟體工程師"
-  - "Python developer"
-  - "資料科學家"
-  - "AI researcher"
+  - "AI engineer"
+  - "machine learning engineer"
+  - "prompt engineer"
+  - "生成式 AI"
+  - "LLM"
+  - "data scientist"
+  - "資料分析"
+  - "AI 產品經理"
+  - "AI PM"
+  - "AI 行銷"
+  - "AI marketing"
+  - "AI 營運"
+  - "AI 商業開發"
+  - "AI 客戶成功"
+  - "資料標註"
+  - "AI 導入顧問"
 
-# 地點設定
+# 地點（給 JobSpy / Indeed 用）
 location:
-  taiwan: "6001001000"       # 104 地區代碼（台北市）
-  international: ""           # JobSpy(LinkedIn/Indeed) 地點（空=不限）
+  taiwan: "Taipei, Taiwan"     # 主要搜尋地點
+  country_indeed: "Taiwan"     # Indeed 國家（必填，否則預設美國）
+  include_remote: true         # 額外加抓一輪遠端／國際 AI 職
 
 # 篩選條件
 filters:
-  min_salary: 50000          # 最低月薪（台幣），0 = 不限制
-  job_type: "fulltime"       # fulltime / parttime / internship / contract
-  hours_old: 72              # 只抓幾小時內的職缺（GitHub Actions 建議 72）
-  results_per_site: 20       # 每個平台每次抓幾筆
+  hours_old: 72                # 只抓幾小時內的職缺（GitHub Actions 建議 72）
+  results_per_site: 15         # 國際平台每關鍵字每地點抓幾筆
+  max_pages: 2                 # 台灣各站每關鍵字抓幾頁
 
-# AI 評分設定
+# AI 評分設定（Gemini Flash，免費層即可）
 ai_scoring:
+  model: "gemini-2.5-flash"    # 必須用 Flash（Pro 已無免費層）；可改 gemini-2.0-flash
+  batch_size: 15               # 一次評分幾筆（省 RPM/成本）
+  max_jobs_to_score: 500       # 單日最多評分幾筆（保護免費層額度）
   candidate_profile: |
-    應徵者背景：具備 3 年 Python 開發經驗，熟悉機器學習與資料分析，
-    有 FastAPI 和 Docker 使用經驗，希望找科技公司或新創，月薪目標 60k 以上。
-  min_score_to_notify: 70    # 幾分以上才推播通知
-  min_score_to_save: 40      # 幾分以上才存進 Google Sheets
+    目標受眾：對 AI／科技新創有興趣、想投入跨領域職位的求職者，包含文科／社科背景者。
+    除了工程職，也涵蓋產品、營運、行銷、內容、商業開發、客戶成功、資料分析、UX 等
+    「文科也能切入」的 AI 相關職位。
+  min_score_to_notify: 70      # 幾分以上才推播通知
+  min_score_to_save: 40        # 幾分以上才存進 Google Sheets
+
+# AI 需求溫度計
+barometer:
+  market_baseline_sample: 80   # 1111 全市場無偏樣本筆數（溫度計基準對照）
 
 # 啟用的平台（true/false）
 platforms:
-  taiwan_104: true
   taiwan_cakeresume: true
   taiwan_yourator: true
+  taiwan_1111: true
+  taiwan_104: false            # 104 已上 Cloudflare，CI 不穩定，預設關閉（本機可手動開）
   international_linkedin: true
   international_indeed: true

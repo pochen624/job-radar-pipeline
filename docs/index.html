@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>AI 職缺雷達 · AI Job Radar</title>
+<link rel="stylesheet" href="css/style.css?v=16">
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <h1 class="logo">AI 職缺雷達</h1>
+    <div class="header-right">
+      <input type="text" id="search-input" class="search-box" placeholder="搜尋職缺（職稱、公司）...">
+      <button id="btn-favorites" class="icon-btn" title="收藏">&#9733;</button>
+    </div>
+  </div>
+</header>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <!-- Calendar -->
+  <div class="nav-section">
+    <div class="calendar-header">
+      <button id="cal-prev" class="cal-nav">&lsaquo;</button>
+      <span id="cal-title" class="cal-title"></span>
+      <button id="cal-next" class="cal-nav">&rsaquo;</button>
+    </div>
+    <div class="calendar-grid">
+      <div class="cal-weekdays">
+        <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+      </div>
+      <div id="cal-days" class="cal-days"></div>
+    </div>
+    <button id="btn-today" class="btn-small" style="margin-top:6px;width:100%">回到今天</button>
+  </div>
+
+  <!-- Tracks (categories) -->
+  <div class="nav-section">
+    <h3 class="section-toggle" data-target="cat-content">軌道（領域） <span class="toggle-icon">&#9660;</span></h3>
+    <div id="cat-content" class="section-body">
+      <div id="category-filters" class="filter-list"></div>
+    </div>
+  </div>
+
+  <!-- Platforms (sources) -->
+  <div class="nav-section">
+    <h3 class="section-toggle" data-target="src-content">平台 <span class="toggle-icon">&#9660;</span></h3>
+    <div id="src-content" class="section-body">
+      <div id="source-filters" class="filter-list"></div>
+    </div>
+  </div>
+
+  <!-- Tags -->
+  <div class="nav-section" id="tags-section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <h3 style="margin:0">&#127991; 我的標籤</h3>
+      <button id="btn-add-tag" class="btn-tiny" title="新增標籤資料夾">+</button>
+    </div>
+    <div id="tag-tree" class="tag-tree"></div>
+    <div id="tag-drop-hint" class="tag-drop-hint" hidden>拖曳職缺到此加標籤</div>
+  </div>
+
+  <!-- Data -->
+  <div class="nav-section">
+    <h3 class="section-toggle" data-target="data-content">資料 <span class="toggle-icon">&#9660;</span></h3>
+    <div id="data-content" class="section-body">
+      <button id="btn-export" class="btn-small" style="width:100%">匯出收藏</button>
+      <label class="btn-small btn-file" style="width:100%;margin-top:4px">
+        匯入
+        <input type="file" id="btn-import" accept=".json" hidden>
+      </label>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile bottom nav -->
+<nav class="mobile-nav">
+  <button class="mobile-nav-btn active" data-view="articles">&#128188; 職缺</button>
+  <button class="mobile-nav-btn" data-view="categories">&#128193; 篩選</button>
+  <button class="mobile-nav-btn" data-view="favorites">&#9733; 收藏</button>
+  <button class="mobile-nav-btn" data-view="menu">&#9776; 選單</button>
+</nav>
+
+<!-- Main Content -->
+<main class="content" id="content">
+  <div class="content-header">
+    <div class="content-title-row">
+      <div class="day-nav">
+        <button id="btn-prev-day" class="day-btn" disabled title="前一天有資料的日期">&#9666; 前一天</button>
+        <h2 id="view-title">載入中...</h2>
+        <button id="btn-next-day" class="day-btn" disabled title="後一天有資料的日期">後一天 &#9656;</button>
+      </div>
+      <div class="history-nav">
+        <button id="btn-back" class="hist-btn" disabled title="上一頁（瀏覽歷史）">&#8624; 上一頁</button>
+        <button id="btn-forward" class="hist-btn" disabled title="下一頁（瀏覽歷史）">下一頁 &#8625;</button>
+      </div>
+    </div>
+    <div id="article-stats" class="stats"></div>
+  </div>
+
+  <!-- AI 需求溫度計（由 app.js 從 data/ai_demand.json 填入；無資料時自動隱藏） -->
+  <div id="barometer" class="barometer" style="display:none"></div>
+
+  <div id="article-list" class="article-list"></div>
+  <div id="empty-state" class="empty-state" hidden>
+    <p>這天沒有職缺資料</p>
+  </div>
+</main>
+
+<!-- Tag modal -->
+<div id="tag-modal" class="modal">
+  <div class="modal-backdrop" id="modal-backdrop"></div>
+  <div class="modal-content">
+    <h3>加入標籤</h3>
+    <input type="text" id="tag-input" class="tag-input" placeholder="輸入標籤後按 Enter">
+    <div id="tag-list" class="tag-list"></div>
+    <button id="tag-close" class="btn-small" style="width:100%">完成</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+<script src="js/app.js?v=16"></script>
+<script src="js/search.js?v=16"></script>
+</body>
+</html>
