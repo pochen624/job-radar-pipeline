@@ -1,8 +1,10 @@
 # 環境變數（含金鑰）
 .env
 
-# 本機 / 編輯器設定（含 Claude Code 工作目錄狀態）
-.claude/
+# 本機 Claude Code 設定（但要保留 .claude/skills/ — 雲端 routine 用得到）
+.claude/*
+!.claude/skills/
+!.claude/skills/**
 
 # SQLite 資料庫
 database/
@@ -39,3 +41,5 @@ Thumbs.db
 !package.json
 # 但要保留前端網站資料（日曆封存）
 !docs/**/*.json
+# 待評分原始資料（Claude routine 要讀）；data/scores.json 為暫存，維持忽略
+!data/pending.json

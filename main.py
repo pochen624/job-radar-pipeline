@@ -14,6 +14,7 @@ AI 職缺雷達 — 主程式
 
 import os
 import sys
+import json
 import yaml
 from datetime import datetime
 from dotenv import load_dotenv
@@ -43,6 +44,16 @@ def _scrape(label, fn):
     except Exception as e:
         print(f"   -> FAILED: {e}")
         return []
+
+
+def _write_pending(date_str, jobs, baseline):
+    """寫出待評分原始資料，供 Claude 雲端 routine 評分（不需 Gemini key）。
+    Claude routine 會讀這個檔、產生 data/scores.json、再跑 apply_scores.py。"""
+    os.makedirs("data", exist_ok=True)
+    with open("data/pending.json", "w", encoding="utf-8") as f:
+        json.dump({"date": date_str, "jobs": jobs, "baseline": baseline},
+                  f, ensure_ascii=False)
+    print(f"[PENDING] data/pending.json 已寫出（{len(jobs)} 職缺 + {len(baseline)} 基準）供 Claude 評分")
 
 
 def main():
@@ -98,7 +109,13 @@ def main():
         n = config.get("barometer", {}).get("market_baseline_sample", 80)
         baseline_jobs = _scrape("1111-baseline", lambda: scrape_1111_baseline(n))
 
-    # ── Step 4: AI 評分（選用） ───────────────────
+    today = start_time.strftime("%Y-%m-%d")
+
+    # 一律寫出待評分原始資料，供 Claude 雲端 routine 評分（即使本機/Action 沒有 key）
+    if not dry_run:
+        _write_pending(today, new_jobs, baseline_jobs)
+
+    # ── Step 4: AI 評分（選用；預設由 Claude routine 處理） ──
     has_ai_scores = False
     stats = None
     display_jobs = new_jobs
@@ -138,7 +155,7 @@ def main():
             has_ai_scores = False
             display_jobs = new_jobs
     elif not gemini_key:
-        print("\n[SKIP] No GEMINI_API_KEY — skipping AI scoring & barometer")
+        print("\n[SKIP] 無 GEMINI_API_KEY — 評分交給 Claude 雲端 routine（讀 data/pending.json）")
 
     # ── Step 6: 產生網站資料（日曆封存式前端讀 docs/data/） ──
     print("\nBuilding site data (docs/data)...")
