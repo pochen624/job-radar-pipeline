@@ -66,8 +66,6 @@ def build_site(display_jobs: List[Dict], stats: Dict = None,
 
 def _job_to_article(job: Dict, date_str: str, idx: int) -> Dict:
     jid = re.sub(r"\s+", "", f"{date_str}-{job.get('source', '')}-{job.get('job_id', '') or idx}")
-    meta = " ｜ ".join(x for x in [job.get("company", ""), job.get("location", ""),
-                                   job.get("salary", "")] if x)
     return {
         "id": jid,
         "title": job.get("title", ""),
@@ -75,16 +73,20 @@ def _job_to_article(job: Dict, date_str: str, idx: int) -> Dict:
         "source": job.get("source", ""),
         "category": job.get("track") or "其他",
         "published": f"{date_str}T00:00:00Z",
-        "summary": meta,
-        "ai_summary": job.get("ai_reason", ""),
+        # 卡片簡介：優先 Claude 評分時產生的「這份工作在做什麼」，否則退回原始 JD 摘要
+        "summary": job.get("summary", "") or "",
+        "description": (job.get("description", "") or "").strip()[:240],
         "company": job.get("company", ""),
         "location": job.get("location", ""),
         "salary": job.get("salary", ""),
+        "work_hours": job.get("work_hours", "") or "",
+        "benefits": job.get("benefits", "") or "",
         "scope": job.get("scope", ""),
         "ai_relevance": job.get("ai_relevance"),
         "ai_tool_importance": job.get("ai_tool_importance"),
         "humanities_accessible": bool(job.get("humanities_accessible", False)),
         "ai_explicitly_required": bool(job.get("ai_explicitly_required", False)),
+        "ai_reason": job.get("ai_reason", "") or "",
         "tags": [],
     }
 

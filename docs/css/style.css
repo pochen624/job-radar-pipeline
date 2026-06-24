@@ -1007,3 +1007,11 @@ a:hover { color: var(--accent-hover); }
 .card-aimeta .hum-pill { color: #c4b5fd; }
 .card-aimeta .req-pill { color: var(--orange); }
 .card-salary { font-size: 12px; color: var(--green); margin-top: 4px; }
+
+/* 職缺卡片：公司名醒目 + 待遇 chips */
+.card-company { font-size: 15px; font-weight: 700; color: var(--text); margin: 3px 0 6px; }
+.card-perks { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.card-perks .perk { font-size: 12px; padding: 2px 8px; border-radius: 6px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-dim); }
+.card-perks .perk-salary { color: var(--green); border-color: rgba(0,184,148,0.35); font-weight: 600; }
+.card-perks .perk-benefit { color: var(--accent-hover); }

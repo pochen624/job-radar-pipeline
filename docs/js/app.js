@@ -4,8 +4,8 @@
    ═══════════════════════════════════════════ */
 
 const DATA_BASE = 'data';
-const LS_FAVORITES = 'ai-digest-favorites';
-const LS_TAGS = 'ai-digest-tags';
+const LS_FAVORITES = 'job-radar-favorites';
+const LS_TAGS = 'job-radar-tags';
 
 const CATEGORY_ICONS = {
   '\u5DE5\u7A0B/\u6280\u8853': '\u{1F6E0}\uFE0F',          // \u5DE5\u7A0B/\u6280\u8853
@@ -16,7 +16,7 @@ const CATEGORY_ICONS = {
 };
 
 const HIDDEN_TAGS = new Set(['curated', 'twitter', 'x', 'telegram']);
-const LS_TAG_FOLDERS = 'ai-digest-tag-folders';
+const LS_TAG_FOLDERS = 'job-radar-tag-folders';
 
 // 分類組對應：X-AI* 七個分類合併為「X/Twitter」一組重點報告
 const X_TWITTER_CATEGORIES = new Set([
@@ -222,25 +222,32 @@ function renderArticleCard(art) {
   card.dataset.id = art.id;
   card.draggable = true;
 
+  const perks = [];
+  if (art.salary && !['面議', '未提供', ''].includes(art.salary)) perks.push(`<span class="perk perk-salary">💰 ${escHtml(art.salary)}</span>`);
+  if (art.work_hours) perks.push(`<span class="perk">⏰ ${escHtml(art.work_hours)}</span>`);
+  if (art.benefits) perks.push(`<span class="perk perk-benefit">🎁 ${escHtml(art.benefits)}</span>`);
+  // summary 是 Claude 產生的「這份工作在做什麼」簡介；舊資料的 summary 是 company｜地點｜薪資 的字串，含「｜」就略過改用 description
+  const blurb = (art.summary && !art.summary.includes('｜')) ? art.summary : (art.description || '');
+
   card.innerHTML = `
     <div class="card-header">
       <div class="card-title"><a href="${escHtml(art.url)}" target="_blank" rel="noopener">${escHtml(art.title)}</a></div>
       <div class="card-actions">
-        <button class="btn-star ${isFav ? 'starred' : ''}" data-id="${art.id}" title="Favorite">&#9733;</button>
-        <button class="btn-tag" data-id="${art.id}" title="Tags">&#127991;</button>
+        <button class="btn-star ${isFav ? 'starred' : ''}" data-id="${art.id}" title="收藏">&#9733;</button>
+        <button class="btn-tag" data-id="${art.id}" title="標籤">&#127991;</button>
       </div>
     </div>
+    ${art.company ? `<div class="card-company">🏢 ${escHtml(art.company)}</div>` : ''}
     <div class="card-meta">
       <span class="cat-badge">${icon} ${escHtml(art.category)}</span>
       <span>${escHtml(art.source)}</span>
-      ${art.company ? `<span>${escHtml(art.company)}</span>` : ''}
+      ${art.location ? `<span>📍 ${escHtml(art.location)}</span>` : ''}
+      ${art.scope ? `<span>${escHtml(art.scope)}</span>` : ''}
       ${dateStr ? `<span>${dateStr}</span>` : ''}
     </div>
-    ${art.ai_tool_importance != null ? `<div class="card-aimeta">🤖 AI工具重要度 <b>${art.ai_tool_importance}</b>/100 · 相關度 ${art.ai_relevance != null ? art.ai_relevance : '-'}${art.humanities_accessible ? ' · <span class="hum-pill">🎓 文科可投</span>' : ''}${art.ai_explicitly_required ? ' · <span class="req-pill">明文要求 AI</span>' : ''}${art.scope ? ' · ' + escHtml(art.scope) : ''}</div>` : (art.scope ? `<div class="card-aimeta">${escHtml(art.scope)}</div>` : '')}
-    ${(art.salary && art.salary !== '面議' && art.salary !== '未提供') ? `<div class="card-salary">💰 ${escHtml(art.salary)}</div>` : ''}
-    ${art.ai_summary ? `<div class="card-summary">${escHtml(art.ai_summary).slice(0, 300)}</div>` : ''}
-    ${art.gemini_pro_summary ? `<details class="gemini-pro-details"><summary class="gemini-pro-toggle">✨ Gemini 3.1 Pro 補充整理</summary><div class="gemini-pro-summary">${escHtml(art.gemini_pro_summary)}</div></details>` : ''}
-    ${state.researchToolIds && state.researchToolIds.has(art.id) ? '<div class="research-badge">🔬 研究推薦</div>' : ''}
+    ${perks.length ? `<div class="card-perks">${perks.join('')}</div>` : ''}
+    ${blurb ? `<div class="card-summary">${escHtml(blurb).slice(0, 240)}</div>` : ''}
+    ${art.ai_tool_importance != null ? `<div class="card-aimeta">🤖 AI工具重要度 <b>${art.ai_tool_importance}</b>/100 · 相關度 ${art.ai_relevance != null ? art.ai_relevance : '-'}${art.humanities_accessible ? ' · <span class="hum-pill">🎓 文科可投</span>' : ''}${art.ai_explicitly_required ? ' · <span class="req-pill">明文要求 AI</span>' : ''}</div>` : ''}
     ${(sharedTags.length || tags.length) ? `<div class="card-tags">${sharedTags.map(t => `<span class="tag-badge tag-shared">${escHtml(t)}</span>`).join('')}${tags.map(t => `<span class="tag-badge tag-personal">${escHtml(t)}</span>`).join('')}</div>` : ''}
   `;
 
@@ -1039,7 +1046,7 @@ function setupEvents() {
     const data = { favorites: [...state.favorites], tags: state.tags };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = `ai-digest-favorites-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `job-radar-favorites-${new Date().toISOString().slice(0, 10)}.json`;
     a.click(); URL.revokeObjectURL(a.href);
   });
   $('#btn-import').addEventListener('change', (e) => {
@@ -1247,12 +1254,12 @@ async function init() {
     const defaults = await fetchJSON(`${DATA_BASE}/default-tags.json`);
     if (defaults && Array.isArray(defaults)) {
       const TAG_VERSION = 6;  // bump this when defaults change
-      const savedVersion = parseInt(localStorage.getItem('ai-digest-tag-version') || '0');
+      const savedVersion = parseInt(localStorage.getItem('job-radar-tag-version') || '0');
       if (savedVersion < TAG_VERSION) {
         // Fresh install or version upgrade: use defaults only
         state.tagFolders = defaults;
         saveTagFolders();
-        localStorage.setItem('ai-digest-tag-version', String(TAG_VERSION));
+        localStorage.setItem('job-radar-tag-version', String(TAG_VERSION));
       }
     }
   } catch {}

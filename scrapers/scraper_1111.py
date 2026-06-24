@@ -105,6 +105,9 @@ def _normalize_1111(h: Dict, keyword: str, is_baseline: bool) -> Dict:
     job_id = h.get("jobId", "")
     work_city = h.get("workCity", {}) or {}
     industry = h.get("industry", {}) or {}
+    # 待遇／福利亮點（highlightedBenefits 為字串清單）
+    hb = h.get("highlightedBenefits") or h.get("benefits") or []
+    benefits = "、".join(str(b) for b in hb if b and str(b) != "0")[:60] if isinstance(hb, list) else ""
     return {
         "source": "1111",
         "job_id": str(job_id),
@@ -115,6 +118,7 @@ def _normalize_1111(h: Dict, keyword: str, is_baseline: bool) -> Dict:
         "url": f"https://www.1111.com.tw/job/{job_id}",
         "date_posted": h.get("updateAt", ""),
         "description": (h.get("description", "") or "")[:1500],
+        "benefits": benefits,
         "industry": industry.get("name", ""),
         "keyword_matched": keyword,
         "is_baseline": is_baseline,

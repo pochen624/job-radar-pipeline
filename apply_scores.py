@@ -46,6 +46,7 @@ def _norm(score):
         "ai_tool_importance": _clamp(score.get("ai_tool_importance")),
         "ai_explicitly_required": bool(score.get("ai_explicitly_required", False)),
         "ai_reason": score.get("reason", "") or "",
+        "summary": score.get("summary", "") or "",   # 這份工作在做什麼（一句話，卡片簡介用）
     }
 
 
