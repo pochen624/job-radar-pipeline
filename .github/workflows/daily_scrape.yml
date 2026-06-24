@@ -7,7 +7,7 @@ on:
   workflow_dispatch:  # 允許手動觸發
 
 permissions:
-  contents: read
+  contents: write   # 需可寫回 data/ai_demand_history.csv（溫度計歷史）
   pages: write
   id-token: write
 
@@ -51,10 +51,22 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: python main.py
 
+      - name: Commit daily archive + AI demand history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data docs/data 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No data changes to commit"
+          else
+            git commit -m "chore: update job archive + AI demand [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: public
+          path: docs
 
       - name: Deploy to GitHub Pages
         id: deployment
