@@ -56,6 +56,28 @@ def _write_pending(date_str, jobs, baseline):
     print(f"[PENDING] data/pending.json 已寫出（{len(jobs)} 職缺 + {len(baseline)} 基準）供 Claude 評分")
 
 
+def _balanced_cap(jobs, cap):
+    """各來源輪流取，把待評分數量壓到 cap 以內（控制每日評分量/配額），且不偏向先爬的來源。"""
+    if len(jobs) <= cap:
+        return jobs
+    from collections import OrderedDict
+    by_src = OrderedDict()
+    for j in jobs:
+        by_src.setdefault(j.get("source", ""), []).append(j)
+    iters = [iter(v) for v in by_src.values()]
+    out = []
+    while len(out) < cap and iters:
+        for it in list(iters):
+            try:
+                out.append(next(it))
+            except StopIteration:
+                iters.remove(it)
+                continue
+            if len(out) >= cap:
+                break
+    return out
+
+
 def main():
     start_time = datetime.now()
     dry_run = "--dry-run" in sys.argv
@@ -111,14 +133,20 @@ def main():
 
     today = start_time.strftime("%Y-%m-%d")
 
+    # 控制每日評分量（保護 Claude 訂閱配額）：各來源輪流取至上限
+    cap = config.get("ai_scoring", {}).get("max_jobs_to_score", 400)
+    score_pool = _balanced_cap(new_jobs, cap)
+    if len(new_jobs) > len(score_pool):
+        print(f"[CAP] {len(new_jobs)} 筆 → 均衡取 {len(score_pool)} 筆送評分（每來源輪流）")
+
     # 一律寫出待評分原始資料，供 Claude 雲端 routine 評分（即使本機/Action 沒有 key）
     if not dry_run:
-        _write_pending(today, new_jobs, baseline_jobs)
+        _write_pending(today, score_pool, baseline_jobs)
 
     # ── Step 4: AI 評分（選用；預設由 Claude routine 處理） ──
     has_ai_scores = False
     stats = None
-    display_jobs = new_jobs
+    display_jobs = score_pool
     gemini_key = os.getenv("GEMINI_API_KEY")
 
     if gemini_key and (new_jobs or baseline_jobs) and not dry_run:
@@ -126,12 +154,7 @@ def main():
             from pipeline.ai_scorer import score_jobs
             from pipeline.stats import record_daily_stats
             sc = config["ai_scoring"]
-            cap = sc.get("max_jobs_to_score", 500)
-
-            scored_segment = new_jobs[:cap]
-            if len(new_jobs) > cap:
-                print(f"[AI] 注意：今日 {len(new_jobs)} 筆超過上限 {cap}，僅評分前 {cap} 筆")
-
+            scored_segment = score_pool
             to_score = scored_segment + baseline_jobs
             print(f"\nAI scoring {len(to_score)} jobs（含 {len(baseline_jobs)} 基準樣本）...")
             score_jobs(to_score, sc["candidate_profile"],
