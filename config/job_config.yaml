@@ -33,7 +33,7 @@ filters:
 ai_scoring:
   model: "gemini-2.5-flash"    # 必須用 Flash（Pro 已無免費層）；可改 gemini-2.0-flash
   batch_size: 15               # 一次評分幾筆（省 RPM/成本）
-  max_jobs_to_score: 300       # 單日最多評分幾筆（各來源輪流取，保護 Claude 訂閱配額）
+  max_jobs_to_score: 180       # 單日最多評分幾筆（各來源輪流取；夠小才能讓 Claude routine 一次穩定吐完）
   candidate_profile: |
     目標受眾：對 AI／科技新創有興趣、想投入跨領域職位的求職者，包含文科／社科背景者。
     除了工程職，也涵蓋產品、營運、行銷、內容、商業開發、客戶成功、資料分析、UX 等
@@ -43,7 +43,7 @@ ai_scoring:
 
 # AI 需求溫度計
 barometer:
-  market_baseline_sample: 80   # 1111 全市場無偏樣本筆數（溫度計基準對照）
+  market_baseline_sample: 50   # 1111 全市場無偏樣本筆數（溫度計基準對照）
 
 # 啟用的平台（true/false）
 platforms:

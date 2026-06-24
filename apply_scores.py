@@ -67,7 +67,11 @@ def main():
 
     scores = {}
     if os.path.exists(SCORES):
-        scores = json.load(open(SCORES, encoding="utf-8"))
+        try:
+            scores = json.load(open(SCORES, encoding="utf-8"))
+        except Exception as e:
+            print(f"[警告] {SCORES} 解析失敗（{e}）；改以中性值套用（請檢查 Claude 輸出是否截斷）")
+            scores = {}
     else:
         print(f"[警告] 找不到 {SCORES}，將以中性值套用（請確認 Claude 已產生評分）")
 
