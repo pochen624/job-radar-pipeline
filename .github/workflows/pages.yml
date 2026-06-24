@@ -1,0 +1,39 @@
+name: Deploy Pages
+
+# 當 docs/ 內容變動（例如 Claude 評分 routine push 了當日評分結果）就重新部署。
+# 注意：daily_scrape.yml 用 GITHUB_TOKEN 推的 commit 不會觸發本 workflow（GitHub 防迴圈），
+# 所以爬蟲那輪由它自己的 deploy 步驟部署；本 workflow 負責 routine（使用者身分）push 後的重部署。
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

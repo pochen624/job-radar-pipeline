@@ -84,8 +84,10 @@ python apply_scores.py
 ```bash
 git add docs/data data/ai_demand_history.csv
 git rm --cached data/scores.json data/pending.json 2>/dev/null || true   # 不追蹤暫存檔
-git commit -m "chore: Claude job scoring + AI demand ($(date -u +%F)) [skip ci]"
+# 注意：commit 訊息「不要」加 [skip ci] —— 我們需要這個 push 觸發 pages.yml 把評分後的網站重新部署。
+git commit -m "data: Claude job scoring + AI demand ($(date -u +%F))"
 git push origin HEAD:main
 ```
 
-完成後簡述：今日列出幾筆、AI 工具重要度今日/歷史、明文要求 AI 比例。
+push 後 `pages.yml` 會自動把更新後的 `docs/` 重新部署到 GitHub Pages。
+完成後簡述：今日列出幾筆、AI 工具重要度今日/歷史、明文要求 AI 比例、commit hash。
