@@ -52,16 +52,23 @@ jobs:
         run: python main.py
 
       - name: Commit daily archive + AI demand history
+        continue-on-error: true   # 推送失敗不可擋下後面的 Pages 部署
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data docs/data 2>/dev/null || true
           if git diff --staged --quiet; then
-            echo "No data changes to commit"
-          else
-            git commit -m "chore: update job archive + AI demand [skip ci]"
-            git push origin HEAD:${{ github.ref_name }}
+            echo "No data changes to commit"; exit 0
           fi
+          git commit -m "chore: update job archive + AI demand [skip ci]"
+          for i in 1 2 3 4 5; do
+            git fetch -q origin ${{ github.ref_name }}
+            if git rebase -q origin/${{ github.ref_name }} && git push origin HEAD:${{ github.ref_name }}; then
+              echo "pushed"; exit 0
+            fi
+            echo "push race, retry $i"; git rebase --abort 2>/dev/null || true; sleep 4
+          done
+          echo "could not push archive after retries (non-fatal)"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
