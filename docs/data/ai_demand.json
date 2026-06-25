@@ -3,81 +3,81 @@
   "date": "2026-06-24",
   "segment": {
    "n": 180,
-   "avg_importance": 60.1,
-   "pct_required": 51.7,
-   "avg_relevance": 63.2,
+   "avg_importance": 69.8,
+   "pct_required": 41.1,
+   "avg_relevance": 71.0,
    "by_track": {
     "工程/技術": {
-     "n": 125,
-     "avg_importance": 66.7
+     "n": 130,
+     "avg_importance": 76.3
     },
     "跨域-產品營運": {
-     "n": 14,
-     "avg_importance": 65.8
+     "n": 20,
+     "avg_importance": 61.7
     },
     "跨域-資料分析": {
      "n": 8,
-     "avg_importance": 65.2
-    },
-    "其他": {
-     "n": 14,
-     "avg_importance": 13.4
+     "avg_importance": 74.4
     },
     "跨域-行銷內容": {
-     "n": 19,
-     "avg_importance": 44.3
+     "n": 11,
+     "avg_importance": 59.8
+    },
+    "其他": {
+     "n": 11,
+     "avg_importance": 14.4
     }
    },
    "by_source": {
     "CakeResume": {
      "n": 36,
-     "avg_importance": 80.7
+     "avg_importance": 88.9
     },
     "Yourator": {
      "n": 36,
-     "avg_importance": 43.1
+     "avg_importance": 53.2
     },
     "1111": {
      "n": 36,
-     "avg_importance": 73.9
+     "avg_importance": 83.1
     },
     "linkedin": {
      "n": 36,
-     "avg_importance": 73.2
+     "avg_importance": 83.6
     },
     "indeed": {
      "n": 36,
-     "avg_importance": 29.4
+     "avg_importance": 40.0
     }
    }
   },
   "baseline": {
    "n": 50,
-   "avg_importance": 6.1,
+   "avg_importance": 9.9,
    "pct_required": 0.0,
-   "avg_relevance": 4.3,
+   "avg_relevance": 6.0,
    "by_track": {
     "其他": {
-     "n": 37,
-     "avg_importance": 5.1
+     "n": 40,
+     "avg_importance": 9.3
     },
     "工程/技術": {
-     "n": 6,
-     "avg_importance": 5.2
+     "n": 8,
+     "avg_importance": 8.1
     },
     "跨域-行銷內容": {
      "n": 1,
-     "avg_importance": 20.0
+     "avg_importance": 35.0
     },
     "跨域-產品營運": {
-     "n": 6,
-     "avg_importance": 10.8
+     "n": 1,
+     "avg_importance": 20.0
     }
    },
    "by_source": {
     "1111": {
      "n": 50,
-     "avg_importance": 6.1
+     "avg_importance": 9.9
     }
    }
   }
@@ -86,20 +86,20 @@
   "days": 1,
   "total_segment_jobs": 180,
   "total_baseline_jobs": 50,
-  "seg_avg_importance": 60.1,
-  "seg_pct_required": 51.7,
-  "base_avg_importance": 6.1,
+  "seg_avg_importance": 69.8,
+  "seg_pct_required": 41.1,
+  "base_avg_importance": 9.9,
   "base_pct_required": 0.0
  },
  "trend": [
   {
    "date": "2026-06-24",
    "n_segment": 180.0,
-   "seg_avg_importance": 60.1,
-   "seg_pct_required": 51.7,
-   "seg_avg_relevance": 63.2,
+   "seg_avg_importance": 69.8,
+   "seg_pct_required": 41.1,
+   "seg_avg_relevance": 71.0,
    "n_baseline": 50.0,
-   "base_avg_importance": 6.1,
+   "base_avg_importance": 9.9,
    "base_pct_required": 0.0
   }
  ]
