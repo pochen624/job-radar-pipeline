@@ -261,7 +261,46 @@ function renderArticleCard(art) {
   return card;
 }
 
+// ── 今日招募公司分布（Top-N 水平長條 + 長尾摘要 + 可展開） ──
+let companyExpanded = false;
+function renderCompanyChart(articles) {
+  const el = document.getElementById('company-chart');
+  if (!el) return;
+  window.__dayArticles = articles;
+  const counts = {};
+  (articles || []).forEach(a => {
+    const c = (a.company || '').trim();
+    if (c) counts[c] = (counts[c] || 0) + 1;
+  });
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'zh-TW'));
+  if (!entries.length) { el.style.display = 'none'; return; }
+  el.style.display = '';
+
+  const TOPN = 18;
+  const totalCompanies = entries.length;
+  const totalJobs = (articles || []).length;
+  const shown = companyExpanded ? entries : entries.slice(0, TOPN);
+  const max = entries[0][1];
+  const bars = shown.map(([co, n]) =>
+    `<div class="co-row"><span class="co-name" title="${escHtml(co)}">${escHtml(co)}</span>` +
+    `<span class="co-track"><span class="co-bar" style="width:${Math.max(4, (n / max) * 100)}%"></span></span>` +
+    `<span class="co-n">${n}</span></div>`
+  ).join('');
+  const hidden = totalCompanies - shown.length;
+  const hiddenJobs = entries.slice(shown.length).reduce((s, [, n]) => s + n, 0);
+  let foot = '';
+  if (hidden > 0) {
+    foot = `<button class="co-toggle" onclick="companyExpanded=true; renderCompanyChart(window.__dayArticles)">展開全部 ${totalCompanies} 家（另 ${hidden} 家 / ${hiddenJobs} 筆）▾</button>`;
+  } else if (companyExpanded && totalCompanies > TOPN) {
+    foot = `<button class="co-toggle" onclick="companyExpanded=false; renderCompanyChart(window.__dayArticles)">收合 ▴</button>`;
+  }
+  el.innerHTML = `<div class="cc-head">🏢 今日招募公司 — 共 <b>${totalCompanies}</b> 家、<b>${totalJobs}</b> 筆`
+    + `<span class="cc-sub">招最多：${escHtml(entries[0][0])}（${entries[0][1]}）</span></div>`
+    + `<div class="co-list">${bars}</div>${foot}`;
+}
+
 function renderArticles(articles) {
+  renderCompanyChart(articles);
   const list = $('#article-list');
   list.innerHTML = '';
 
