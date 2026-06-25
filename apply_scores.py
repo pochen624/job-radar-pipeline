@@ -47,6 +47,7 @@ def _norm(score):
         "ai_explicitly_required": bool(score.get("ai_explicitly_required", False)),
         "ai_reason": score.get("reason", "") or "",
         "summary": score.get("summary", "") or "",   # 這份工作在做什麼（一句話，卡片簡介用）
+        "work_hours": (score.get("work_hours", "") or "")[:24],  # 從 JD 抽出的工時（沒寫就空）
     }
 
 
