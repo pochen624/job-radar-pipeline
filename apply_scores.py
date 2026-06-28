@@ -12,6 +12,7 @@
 
 import json
 import os
+import re
 import sys
 
 from pipeline.stats import record_daily_stats
@@ -27,6 +28,23 @@ def _clamp(v, default=0):
         return max(0, min(100, int(round(float(v)))))
     except (TypeError, ValueError):
         return default
+
+
+def _norm_skills(v):
+    """正規化技能清單為 list[str]：去空白、去重、限數量（≤8）與長度（≤20）。
+    Claude 給 list 最佳；也容忍逗號／頓號分隔的字串。"""
+    if isinstance(v, str):
+        v = re.split(r"[,，、;；/|]", v)
+    if not isinstance(v, list):
+        return []
+    out = []
+    for s in v:
+        s = str(s).strip()[:20]
+        if s and s not in out:
+            out.append(s)
+        if len(out) >= 8:
+            break
+    return out
 
 
 def _norm(score):
@@ -48,6 +66,7 @@ def _norm(score):
         "ai_reason": score.get("reason", "") or "",
         "summary": score.get("summary", "") or "",   # 這份工作在做什麼（一句話，卡片簡介用）
         "work_hours": (score.get("work_hours", "") or "")[:24],  # 從 JD 抽出的工時（沒寫就空）
+        "skills": _norm_skills(score.get("skills")),  # 所需技能與能力（list[str]，從 JD/職稱抽取）
     }
 
 

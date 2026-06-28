@@ -80,6 +80,7 @@ def _job_to_article(job: Dict, date_str: str, idx: int) -> Dict:
         "location": job.get("location", ""),
         "salary": job.get("salary", ""),
         "work_hours": job.get("work_hours", "") or "",
+        "skills": job.get("skills") or [],            # 所需技能與能力（list[str]，卡片顯示成 chips）
         "benefits": job.get("benefits", "") or "",
         "scope": job.get("scope", ""),
         "ai_relevance": job.get("ai_relevance"),
