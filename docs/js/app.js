@@ -209,7 +209,8 @@ function renderCalendar() {
 //  Article Rendering
 // ═══════════════════════════════════════════
 
-function renderArticleCard(art) {
+function renderArticleCard(art, opts = {}) {
+  const detail = !!opts.detail;  // detail：公司職缺面板用的「詳細卡片」（結構化 5 欄位 + JD 全文）
   const isFav = state.favorites.has(art.id);
   const tags = getArticleTags(art.id);
   const sharedTags = (art.tags || []).filter(t => isManualTag(t));
@@ -217,10 +218,10 @@ function renderArticleCard(art) {
   const dateStr = art.published ? new Date(art.published).toLocaleDateString('zh-TW', {month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'}) : '';
 
   const card = document.createElement('div');
-  card.className = 'article-card';
+  card.className = detail ? 'article-card article-card--detail' : 'article-card';
   card.dataset.cat = art.category;
   card.dataset.id = art.id;
-  card.draggable = true;
+  card.draggable = !detail;  // detail 卡片在面板裡，不需要拖曳貼標
 
   const perks = [];
   if (art.salary && !['面議', '未提供', ''].includes(art.salary)) perks.push(`<span class="perk perk-salary">💰 ${escHtml(art.salary)}</span>`);
@@ -229,7 +230,7 @@ function renderArticleCard(art) {
   // summary 是 Claude 產生的「這份工作在做什麼」簡介；舊資料的 summary 是 company｜地點｜薪資 的字串，含「｜」就略過改用 description
   const blurb = (art.summary && !art.summary.includes('｜')) ? art.summary : (art.description || '');
 
-  card.innerHTML = `
+  const headHtml = `
     <div class="card-header">
       <div class="card-title"><a href="${escHtml(art.url)}" target="_blank" rel="noopener">${escHtml(art.title)}</a></div>
       <div class="card-actions">
@@ -237,32 +238,99 @@ function renderArticleCard(art) {
         <button class="btn-tag" data-id="${art.id}" title="標籤">&#127991;</button>
       </div>
     </div>
-    ${art.company ? `<div class="card-company">🏢 ${escHtml(art.company)}</div>` : ''}
-    <div class="card-meta">
-      <span class="cat-badge">${icon} ${escHtml(art.category)}</span>
-      <span>${escHtml(art.source)}</span>
-      ${art.location ? `<span>📍 ${escHtml(art.location)}</span>` : ''}
-      ${art.scope ? `<span>${escHtml(art.scope)}</span>` : ''}
-      ${dateStr ? `<span>${dateStr}</span>` : ''}
-    </div>
-    ${perks.length ? `<div class="card-perks">${perks.join('')}</div>` : ''}
-    ${blurb ? `<div class="card-summary">${escHtml(blurb).slice(0, 240)}</div>` : ''}
-    ${art.ai_tool_importance != null ? `<div class="card-aimeta">🤖 AI工具重要度 <b>${art.ai_tool_importance}</b>/100 · 相關度 ${art.ai_relevance != null ? art.ai_relevance : '-'}${art.humanities_accessible ? ' · <span class="hum-pill">🎓 文科可投</span>' : ''}${art.ai_explicitly_required ? ' · <span class="req-pill">明文要求 AI</span>' : ''}</div>` : ''}
-    ${(sharedTags.length || tags.length) ? `<div class="card-tags">${sharedTags.map(t => `<span class="tag-badge tag-shared">${escHtml(t)}</span>`).join('')}${tags.map(t => `<span class="tag-badge tag-personal">${escHtml(t)}</span>`).join('')}</div>` : ''}
-  `;
+    ${art.company ? `<div class="card-company">🏢 ${escHtml(art.company)}</div>` : ''}`;
+  const aimetaHtml = art.ai_tool_importance != null ? `<div class="card-aimeta">🤖 AI工具重要度 <b>${art.ai_tool_importance}</b>/100 · 相關度 ${art.ai_relevance != null ? art.ai_relevance : '-'}${art.humanities_accessible ? ' · <span class="hum-pill">🎓 文科可投</span>' : ''}${art.ai_explicitly_required ? ' · <span class="req-pill">明文要求 AI</span>' : ''}</div>` : '';
+  const tagsHtml = (sharedTags.length || tags.length) ? `<div class="card-tags">${sharedTags.map(t => `<span class="tag-badge tag-shared">${escHtml(t)}</span>`).join('')}${tags.map(t => `<span class="tag-badge tag-personal">${escHtml(t)}</span>`).join('')}</div>` : '';
 
-  // Drag events
-  card.addEventListener('dragstart', (e) => {
-    e.dataTransfer.setData('text/plain', art.id);
-    card.classList.add('dragging');
-  });
-  card.addEventListener('dragend', () => card.classList.remove('dragging'));
+  if (detail) {
+    // detail 模式：精簡 meta（地點/薪資改由下方結構化 job-spec 呈現）＋ 5 欄位 job-spec
+    card.innerHTML = headHtml
+      + `<div class="card-meta">
+          <span class="cat-badge">${icon} ${escHtml(art.category)}</span>
+          <span>${escHtml(art.source)}</span>
+          ${art.scope ? `<span>${escHtml(art.scope)}</span>` : ''}
+          ${dateStr ? `<span>${dateStr}</span>` : ''}
+        </div>`
+      + renderJobSpec(art)
+      + aimetaHtml
+      + tagsHtml;
+  } else {
+    card.innerHTML = headHtml
+      + `<div class="card-meta">
+          <span class="cat-badge">${icon} ${escHtml(art.category)}</span>
+          <span>${escHtml(art.source)}</span>
+          ${art.location ? `<span>📍 ${escHtml(art.location)}</span>` : ''}
+          ${art.scope ? `<span>${escHtml(art.scope)}</span>` : ''}
+          ${dateStr ? `<span>${dateStr}</span>` : ''}
+        </div>`
+      + (perks.length ? `<div class="card-perks">${perks.join('')}</div>` : '')
+      + (blurb ? `<div class="card-summary">${escHtml(blurb).slice(0, 240)}</div>` : '')
+      + aimetaHtml
+      + tagsHtml;
+  }
+
+  if (detail) {
+    // 工作內容「看更多／收合」展開
+    const moreBtn = card.querySelector('.spec-more');
+    if (moreBtn) moreBtn.addEventListener('click', () => {
+      const desc = card.querySelector('.spec-desc');
+      const clamped = desc.classList.toggle('clamped');
+      moreBtn.textContent = clamped ? '看更多 ▾' : '收合 ▴';
+    });
+  } else {
+    // Drag events（列表模式才需要拖曳貼標）
+    card.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', art.id);
+      card.classList.add('dragging');
+    });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+  }
 
   return card;
 }
 
-// ── 今日招募公司分布（Top-N 水平長條 + 長尾摘要 + 可展開） ──
+// 詳細卡片的結構化區塊：薪水 / 工作時數 / 工作地點 / 工作內容 / 所需技能與能力
+function renderJobSpec(art) {
+  const salary = (art.salary && art.salary.trim()) ? escHtml(art.salary) : '面議／未提供';
+  const hours = (art.work_hours && art.work_hours.trim()) ? escHtml(art.work_hours) : '未提供';
+  const loc = (art.location && art.location.trim()) ? escHtml(art.location) : '未提供';
+
+  // 工作內容：Claude 一句話簡介（lead）＋ JD 全文（過長則可展開）
+  const lead = (art.summary && !art.summary.includes('｜')) ? escHtml(art.summary) : '';
+  const desc = (art.description && art.description.trim() && art.description.trim() !== 'None') ? art.description.trim() : '';
+  let contentHtml = '';
+  if (lead) contentHtml += `<div class="spec-lead">${lead}</div>`;
+  if (desc) {
+    const long = desc.length > 160;
+    contentHtml += `<div class="spec-desc${long ? ' clamped' : ''}">${escHtml(desc)}</div>`;
+    if (long) contentHtml += `<button class="spec-more" type="button">看更多 ▾</button>`;
+  }
+  if (!contentHtml) contentHtml = `<div class="spec-muted">（本筆未提供詳細描述，請點下方連結看原始職缺）</div>`;
+
+  // 所需技能與能力：目前無獨立欄位 → 從 JD 呈現＋原始職缺連結；若日後有 art.skills（陣列/字串）則顯示
+  let skillsHtml;
+  const skills = art.skills;
+  if (Array.isArray(skills) && skills.length) {
+    skillsHtml = `<div class="spec-skills">${skills.map(s => `<span class="skill-chip">${escHtml(String(s))}</span>`).join('')}</div>`;
+  } else if (typeof skills === 'string' && skills.trim()) {
+    skillsHtml = `<div>${escHtml(skills)}</div>`;
+  } else {
+    skillsHtml = `<div class="spec-muted">詳見上方「工作內容」　<a href="${escHtml(art.url)}" target="_blank" rel="noopener">查看原始職缺 ↗</a></div>`;
+  }
+
+  return `
+    <div class="job-spec">
+      <div class="spec-row"><span class="spec-label">💰 薪水</span><span class="spec-val">${salary}</span></div>
+      <div class="spec-row"><span class="spec-label">⏰ 工作時數</span><span class="spec-val">${hours}</span></div>
+      <div class="spec-row"><span class="spec-label">📍 工作地點</span><span class="spec-val">${loc}</span></div>
+      <div class="spec-row spec-row--block"><span class="spec-label">📋 工作內容</span><div class="spec-val">${contentHtml}</div></div>
+      <div class="spec-row spec-row--block"><span class="spec-label">🛠 所需技能與能力</span><div class="spec-val">${skillsHtml}</div></div>
+    </div>`;
+}
+
+// ── 今日招募公司分布（Top-N 水平長條 + 長尾摘要 + 可展開；點長條展開該公司職缺面板） ──
 let companyExpanded = false;
+let selectedCompany = null;  // 目前在面板展開的公司（null = 未展開）
 function renderCompanyChart(articles) {
   const el = document.getElementById('company-chart');
   if (!el) return;
@@ -282,7 +350,8 @@ function renderCompanyChart(articles) {
   const shown = companyExpanded ? entries : entries.slice(0, TOPN);
   const max = entries[0][1];
   const bars = shown.map(([co, n]) =>
-    `<div class="co-row"><span class="co-name" title="${escHtml(co)}">${escHtml(co)}</span>` +
+    `<div class="co-row co-row--click${co === selectedCompany ? ' active' : ''}" data-company="${escHtml(co)}">` +
+    `<span class="co-name" title="${escHtml(co)}">${escHtml(co)}</span>` +
     `<span class="co-track"><span class="co-bar" style="width:${Math.max(4, (n / max) * 100)}%"></span></span>` +
     `<span class="co-n">${n}</span></div>`
   ).join('');
@@ -299,7 +368,48 @@ function renderCompanyChart(articles) {
     + `<div class="co-list">${bars}</div>${foot}`;
 }
 
+// ── 公司職缺面板：點長條後在圖表下方展開該公司所有職缺的詳細卡片 ──
+function toggleCompanyJobs(company) {
+  if (selectedCompany === company) closeCompanyJobs();
+  else renderCompanyJobs(company);
+}
+
+function renderCompanyJobs(company) {
+  const panel = document.getElementById('company-jobs-panel');
+  if (!panel) return;
+  const jobs = (window.__dayArticles || []).filter(a => (a.company || '').trim() === company);
+  if (!jobs.length) { closeCompanyJobs(); return; }
+  selectedCompany = company;
+
+  panel.innerHTML = `<div class="cj-head">`
+    + `<span class="cj-title">🏢 ${escHtml(company)} — 共 <b>${jobs.length}</b> 個職缺</span>`
+    + `<button class="cj-close" type="button" title="關閉">✕</button></div>`
+    + `<div class="cj-list"></div>`;
+  const listEl = panel.querySelector('.cj-list');
+  jobs.forEach(art => listEl.appendChild(renderArticleCard(art, { detail: true })));
+  panel.querySelector('.cj-close').addEventListener('click', closeCompanyJobs);
+  panel.style.display = '';
+
+  markActiveCompanyBar(company);
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closeCompanyJobs() {
+  selectedCompany = null;
+  const panel = document.getElementById('company-jobs-panel');
+  if (panel) { panel.style.display = 'none'; panel.innerHTML = ''; }
+  markActiveCompanyBar(null);
+}
+
+// 高亮目前展開的公司長條（company 為 null 時全部取消高亮）
+function markActiveCompanyBar(company) {
+  document.querySelectorAll('#company-chart .co-row').forEach(row => {
+    row.classList.toggle('active', !!company && row.dataset.company === company);
+  });
+}
+
 function renderArticles(articles) {
+  closeCompanyJobs();  // 換日／換篩選時先收掉舊的公司職缺面板
   renderCompanyChart(articles);
   const list = $('#article-list');
   list.innerHTML = '';
@@ -1052,6 +1162,21 @@ function setupEvents() {
 
   // Article list clicks
   $('#article-list').addEventListener('click', (e) => {
+    const starBtn = e.target.closest('.btn-star');
+    if (starBtn) { e.preventDefault(); toggleFavorite(starBtn.dataset.id); starBtn.classList.toggle('starred'); return; }
+    const tagBtn = e.target.closest('.btn-tag');
+    if (tagBtn) { e.preventDefault(); openTagModal(tagBtn.dataset.id); return; }
+  });
+
+  // 點長條圖某公司 → 展開/收合該公司職缺面板（委派；展開全部/收合按鈕不觸發）
+  $('#company-chart').addEventListener('click', (e) => {
+    if (e.target.closest('.co-toggle')) return;
+    const row = e.target.closest('.co-row');
+    if (row && row.dataset.company) toggleCompanyJobs(row.dataset.company);
+  });
+
+  // 公司職缺面板裡的收藏/標籤（與 #article-list 相同的委派）
+  $('#company-jobs-panel').addEventListener('click', (e) => {
     const starBtn = e.target.closest('.btn-star');
     if (starBtn) { e.preventDefault(); toggleFavorite(starBtn.dataset.id); starBtn.classList.toggle('starred'); return; }
     const tagBtn = e.target.closest('.btn-tag');

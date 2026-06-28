@@ -1033,3 +1033,41 @@ a:hover { color: var(--accent-hover); }
   color: var(--text-dim); padding: 4px 12px; border-radius: 14px; cursor: pointer; font-size: 12px; }
 .co-toggle:hover { color: var(--accent-hover); border-color: var(--accent); }
 @media (max-width: 768px) { .co-row { grid-template-columns: 108px 1fr 28px; } }
+
+/* 長條可點擊 + 反白（點某公司 → 下方展開該公司職缺面板） */
+.co-row--click { cursor: pointer; border-radius: 5px; padding: 1px 4px; margin: 0 -4px; transition: background 0.12s; }
+.co-row--click:hover { background: var(--bg-hover); }
+.co-row.active { background: rgba(124, 108, 240, 0.18); }
+.co-row.active .co-name { color: var(--accent-hover); font-weight: 600; }
+
+/* 公司職缺面板 */
+.company-jobs-panel { background: var(--bg-card); border: 1px solid var(--accent);
+  border-radius: var(--radius); padding: 14px 16px; margin-bottom: 18px; }
+.cj-head { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.cj-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.cj-title b { color: var(--accent-hover); }
+.cj-close { background: transparent; border: 1px solid var(--border); color: var(--text-dim);
+  width: 28px; height: 28px; border-radius: 8px; cursor: pointer; font-size: 14px; line-height: 1; flex-shrink: 0; }
+.cj-close:hover { color: var(--accent-hover); border-color: var(--accent); }
+.cj-list { display: flex; flex-direction: column; gap: 10px; }
+
+/* 詳細卡片：結構化 5 欄位（薪水/工時/地點/工作內容/技能） */
+.article-card--detail { border-left-color: var(--accent); }
+.job-spec { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 2px; }
+.spec-row { display: grid; grid-template-columns: 104px 1fr; gap: 10px; align-items: start; font-size: 13px; }
+.spec-label { color: var(--text-dim); font-weight: 600; white-space: nowrap; }
+.spec-val { color: var(--text); word-break: break-word; }
+.spec-lead { color: var(--text); margin-bottom: 6px; }
+.spec-desc { color: var(--text-dim); white-space: pre-wrap; line-height: 1.6; }
+.spec-desc.clamped { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.spec-more { margin-top: 4px; background: transparent; border: none; color: var(--accent-hover);
+  cursor: pointer; font-size: 12px; padding: 0; }
+.spec-more:hover { text-decoration: underline; }
+.spec-muted { color: var(--text-dim); }
+.spec-muted a { color: var(--accent-hover); }
+.spec-skills { display: flex; flex-wrap: wrap; gap: 6px; }
+.skill-chip { font-size: 12px; padding: 2px 8px; border-radius: 6px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text-dim); }
+
+@media (max-width: 768px) { .spec-row { grid-template-columns: 88px 1fr; } }
