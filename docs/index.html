@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>AI 職缺雷達 · AI Job Radar</title>
-<link rel="stylesheet" href="css/style.css?v=17">
+<link rel="stylesheet" href="css/style.css?v=18">
 </head>
 <body>
 
@@ -110,7 +110,10 @@
   <!-- 今日招募公司分布（由 app.js 依當天職缺即時統計） -->
   <div id="company-chart" class="company-chart" style="display:none"></div>
 
-  <!-- 點長條後展開的「公司職缺面板」（由 app.js 依所選公司即時填入） -->
+  <!-- 今日工作地域分佈（甜甜圈 + 可點擊縣市/國家長條） -->
+  <div id="geo-chart" class="geo-chart" style="display:none"></div>
+
+  <!-- 點長條後展開的「職缺面板」（公司或地域，由 app.js 即時填入） -->
   <div id="company-jobs-panel" class="company-jobs-panel" style="display:none"></div>
 
   <div id="article-list" class="article-list"></div>
@@ -131,7 +134,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
-<script src="js/app.js?v=17"></script>
-<script src="js/search.js?v=17"></script>
+<script src="js/app.js?v=18"></script>
+<script src="js/search.js?v=18"></script>
 </body>
 </html>

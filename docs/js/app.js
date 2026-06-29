@@ -330,7 +330,8 @@ function renderJobSpec(art) {
 
 // ── 今日招募公司分布（Top-N 水平長條 + 長尾摘要 + 可展開；點長條展開該公司職缺面板） ──
 let companyExpanded = false;
-let selectedCompany = null;  // 目前在面板展開的公司（null = 未展開）
+let selectedSel = null;  // 目前展開的選取：{ kind:'company'|'geo', key }；null = 未展開
+function isActiveSel(kind, key) { return !!(selectedSel && selectedSel.kind === kind && selectedSel.key === key); }
 function renderCompanyChart(articles) {
   const el = document.getElementById('company-chart');
   if (!el) return;
@@ -350,7 +351,7 @@ function renderCompanyChart(articles) {
   const shown = companyExpanded ? entries : entries.slice(0, TOPN);
   const max = entries[0][1];
   const bars = shown.map(([co, n]) =>
-    `<div class="co-row co-row--click${co === selectedCompany ? ' active' : ''}" data-company="${escHtml(co)}">` +
+    `<div class="co-row co-row--click${isActiveSel('company', co) ? ' active' : ''}" data-company="${escHtml(co)}">` +
     `<span class="co-name" title="${escHtml(co)}">${escHtml(co)}</span>` +
     `<span class="co-track"><span class="co-bar" style="width:${Math.max(4, (n / max) * 100)}%"></span></span>` +
     `<span class="co-n">${n}</span></div>`
@@ -368,49 +369,140 @@ function renderCompanyChart(articles) {
     + `<div class="co-list">${bars}</div>${foot}`;
 }
 
-// ── 公司職缺面板：點長條後在圖表下方展開該公司所有職缺的詳細卡片 ──
-function toggleCompanyJobs(company) {
-  if (selectedCompany === company) closeCompanyJobs();
-  else renderCompanyJobs(company);
+// ── 地域分類：把 location 字串歸到「台灣縣市 / 海外國家 / 未提供」──
+// location 來源格式不一（1111/Yourator 中文縣市、LinkedIn 英文 City,Region,Country、
+// indeed「台北市, TPE, TW」、US「City, ST」），用啟發式規則歸類，覆蓋率約 98%。
+const _GEO = {
+  twZh: ['臺北市','台北市','新北市','桃園市','臺中市','台中市','臺南市','台南市','高雄市','基隆市','新竹市','新竹縣','苗栗縣','彰化縣','南投縣','雲林縣','嘉義市','嘉義縣','屏東縣','宜蘭縣','花蓮縣','臺東縣','台東縣','澎湖縣','金門縣','連江縣'],
+  norm: { '台北市':'臺北市','台中市':'臺中市','台南市':'臺南市','台東縣':'臺東縣' },
+  enCity: [['New Taipei','新北市'],['Taipei','臺北市'],['Taoyuan','桃園市'],['Taichung','臺中市'],['Tainan','臺南市'],['Kaohsiung','高雄市'],['Hsinchu County','新竹縣'],['Hsinchu','新竹市'],['Keelung','基隆市'],['Miaoli','苗栗縣'],['Changhua','彰化縣'],['Nantou','南投縣'],['Yunlin','雲林縣'],['Chiayi County','嘉義縣'],['Chiayi','嘉義市'],['Pingtung','屏東縣'],['Yilan','宜蘭縣'],['Ilan','宜蘭縣'],['Hualien','花蓮縣'],['Taitung','臺東縣'],['Penghu','澎湖縣'],['Kinmen','金門縣'],['Lienchiang','連江縣'],['Matsu','連江縣']],
+  usSt: new Set('AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC'.split(' ')),
+  country: [['China','中國'],['Hong Kong','香港'],['Macau','澳門'],['Macao','澳門'],['Japan','日本'],['Korea','南韓'],['Singapore','新加坡'],['Malaysia','馬來西亞'],['Indonesia','印尼'],['Thailand','泰國'],['Vietnam','越南'],['Philippines','菲律賓'],['India','印度'],['United States','美國'],['USA','美國'],['Canada','加拿大'],['Brazil','巴西'],['Mexico','墨西哥'],['United Kingdom','英國'],['England','英國'],['Scotland','英國'],['Wales','英國'],['Ireland','愛爾蘭'],['France','法國'],['Germany','德國'],['Spain','西班牙'],['Italy','義大利'],['Netherlands','荷蘭'],['Switzerland','瑞士'],['Sweden','瑞典'],['Norway','挪威'],['Finland','芬蘭'],['Denmark','丹麥'],['Poland','波蘭'],['Belgium','比利時'],['Bulgaria','保加利亞'],['Estonia','愛沙尼亞'],['Lithuania','立陶宛'],['Australia','澳洲'],['New Zealand','紐西蘭'],['United Arab Emirates','阿聯'],['UAE','阿聯'],['Dubai','阿聯'],['Abu Dhabi','阿聯'],['Saudi Arabia','沙烏地阿拉伯'],['Israel','以色列'],['Qatar','卡達'],['Oman','阿曼'],['Egypt','埃及'],['Turkey','土耳其'],['Georgia','喬治亞']],
+};
+function classifyGeo(loc) {
+  loc = (loc || '').trim();
+  if (!loc) return { scope: 'unknown', label: '未提供' };
+  for (const z of _GEO.twZh) if (loc.includes(z)) return { scope: 'tw', label: _GEO.norm[z] || z };
+  if (loc.includes('Taiwan') || /(^|,\s*)TW$/.test(loc)) {
+    for (const [en, zh] of _GEO.enCity) if (new RegExp('\\b' + en).test(loc)) return { scope: 'tw', label: zh };
+    return { scope: 'tw', label: '臺灣其他' };
+  }
+  const parts = loc.split(',').map(s => s.trim());
+  if (_GEO.usSt.has(parts[parts.length - 1])) return { scope: 'ov', label: '美國' };
+  for (const [name, zh] of _GEO.country) if (loc.includes(name)) return { scope: 'ov', label: zh };
+  return { scope: 'ov', label: parts[parts.length - 1] || loc };  // 後備：取最後一段（多半已是國家名）
 }
 
-function renderCompanyJobs(company) {
+// ── 今日工作地域分佈（甜甜圈：台灣/海外/未提供 + 可點擊縣市/國家長條） ──
+function renderGeoChart(articles) {
+  const el = document.getElementById('geo-chart');
+  if (!el) return;
+  const tw = {}, ov = {};
+  let twN = 0, ovN = 0, unkN = 0;
+  (articles || []).forEach(a => {
+    const g = classifyGeo(a.location);
+    if (g.scope === 'tw') { tw[g.label] = (tw[g.label] || 0) + 1; twN++; }
+    else if (g.scope === 'ov') { ov[g.label] = (ov[g.label] || 0) + 1; ovN++; }
+    else unkN++;
+  });
+  const total = twN + ovN + unkN;
+  if (!total) { el.style.display = 'none'; return; }
+  el.style.display = '';
+
+  // 甜甜圈（SVG，多段 stroke-dasharray 疊圈；r=52、周長 C）
+  const C = 2 * Math.PI * 52;
+  const segs = [
+    { label: '台灣', n: twN, color: 'var(--accent)' },
+    { label: '海外', n: ovN, color: '#00b894' },
+    { label: '未提供', n: unkN, color: '#5a5a72' },
+  ].filter(s => s.n > 0);
+  let acc = 0;
+  const rings = segs.map(s => {
+    const frac = s.n / total;
+    const dash = `${(frac * C).toFixed(2)} ${(C - frac * C).toFixed(2)}`;
+    const ring = `<circle r="52" cx="60" cy="60" fill="none" stroke="${s.color}" stroke-width="16" stroke-dasharray="${dash}" stroke-dashoffset="${(-acc * C).toFixed(2)}" transform="rotate(-90 60 60)"></circle>`;
+    acc += frac;
+    return ring;
+  }).join('');
+  const donut = `<svg class="geo-donut" viewBox="0 0 120 120" width="116" height="116">${rings}`
+    + `<text x="60" y="56" text-anchor="middle" class="geo-donut-num">${total}</text>`
+    + `<text x="60" y="74" text-anchor="middle" class="geo-donut-lbl">筆職缺</text></svg>`;
+  const legend = segs.map(s =>
+    `<span class="geo-leg"><i style="background:${s.color}"></i>${s.label} <b>${s.n}</b>（${Math.round(s.n / total * 100)}%）</span>`
+  ).join('');
+
+  // 可點擊長條（縣市 / 國家），點擊→展開該地域職缺面板
+  const sortEntries = o => Object.entries(o).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'zh-TW'));
+  const twEntries = sortEntries(tw), ovEntries = sortEntries(ov);
+  const maxN = Math.max(1, ...twEntries.map(e => e[1]), ...ovEntries.map(e => e[1]));
+  const barRow = ([label, n]) =>
+    `<div class="geo-row co-row--click${isActiveSel('geo', label) ? ' active' : ''}" data-geo="${escHtml(label)}">`
+    + `<span class="co-name" title="${escHtml(label)}">${escHtml(label)}</span>`
+    + `<span class="co-track"><span class="co-bar" style="width:${Math.max(4, n / maxN * 100)}%"></span></span>`
+    + `<span class="co-n">${n}</span></div>`;
+  const sec = (title, entries) => entries.length
+    ? `<div class="geo-sec"><div class="geo-sec-h">${title}</div><div class="co-list">${entries.map(barRow).join('')}</div></div>` : '';
+
+  el.innerHTML = `<div class="cc-head">🌏 今日工作地域分佈 — 共 <b>${total}</b> 筆`
+    + `<span class="cc-sub">台灣 ${twN}｜海外 ${ovN}${unkN ? `｜未提供 ${unkN}` : ''}</span></div>`
+    + `<div class="geo-top"><div class="geo-donut-wrap">${donut}</div><div class="geo-legend">${legend}</div></div>`
+    + `<div class="geo-secs">${sec(`🇹🇼 台灣各縣市（${twN}）`, twEntries)}${sec(`🌍 海外各國（${ovN}）`, ovEntries)}</div>`;
+}
+
+// ── 職缺面板：點公司長條或地域長條後，在圖表下方展開該選取的所有職缺詳細卡片 ──
+// 依選取類型篩出職缺（company＝同公司；geo＝同地域標籤）
+function selJobs(kind, key) {
+  const arts = window.__dayArticles || [];
+  if (kind === 'company') return arts.filter(a => (a.company || '').trim() === key);
+  if (kind === 'geo') return arts.filter(a => classifyGeo(a.location).label === key);
+  return [];
+}
+
+function toggleJobsPanel(kind, key) {
+  if (isActiveSel(kind, key)) closeJobsPanel();
+  else openJobsPanel(kind, key);
+}
+
+function openJobsPanel(kind, key) {
   const panel = document.getElementById('company-jobs-panel');
   if (!panel) return;
-  const jobs = (window.__dayArticles || []).filter(a => (a.company || '').trim() === company);
-  if (!jobs.length) { closeCompanyJobs(); return; }
-  selectedCompany = company;
+  const jobs = selJobs(kind, key);
+  if (!jobs.length) { closeJobsPanel(); return; }
+  selectedSel = { kind, key };
 
+  const icon = kind === 'company' ? '🏢' : '📍';
   panel.innerHTML = `<div class="cj-head">`
-    + `<span class="cj-title">🏢 ${escHtml(company)} — 共 <b>${jobs.length}</b> 個職缺</span>`
+    + `<span class="cj-title">${icon} ${escHtml(key)} — 共 <b>${jobs.length}</b> 個職缺</span>`
     + `<button class="cj-close" type="button" title="關閉">✕</button></div>`
     + `<div class="cj-list"></div>`;
   const listEl = panel.querySelector('.cj-list');
   jobs.forEach(art => listEl.appendChild(renderArticleCard(art, { detail: true })));
-  panel.querySelector('.cj-close').addEventListener('click', closeCompanyJobs);
+  panel.querySelector('.cj-close').addEventListener('click', closeJobsPanel);
   panel.style.display = '';
 
-  markActiveCompanyBar(company);
+  markActiveSel();
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function closeCompanyJobs() {
-  selectedCompany = null;
+function closeJobsPanel() {
+  selectedSel = null;
   const panel = document.getElementById('company-jobs-panel');
   if (panel) { panel.style.display = 'none'; panel.innerHTML = ''; }
-  markActiveCompanyBar(null);
+  markActiveSel();
 }
 
-// 高亮目前展開的公司長條（company 為 null 時全部取消高亮）
-function markActiveCompanyBar(company) {
-  document.querySelectorAll('#company-chart .co-row').forEach(row => {
-    row.classList.toggle('active', !!company && row.dataset.company === company);
-  });
+// 高亮目前選取的長條（公司圖／地域圖），其餘全部取消高亮
+function markActiveSel() {
+  document.querySelectorAll('#company-chart .co-row').forEach(row =>
+    row.classList.toggle('active', isActiveSel('company', row.dataset.company)));
+  document.querySelectorAll('#geo-chart .geo-row').forEach(row =>
+    row.classList.toggle('active', isActiveSel('geo', row.dataset.geo)));
 }
 
 function renderArticles(articles) {
-  closeCompanyJobs();  // 換日／換篩選時先收掉舊的公司職缺面板
+  closeJobsPanel();  // 換日／換篩選時先收掉舊的職缺面板
   renderCompanyChart(articles);
+  renderGeoChart(articles);
   const list = $('#article-list');
   list.innerHTML = '';
 
@@ -1172,7 +1264,13 @@ function setupEvents() {
   $('#company-chart').addEventListener('click', (e) => {
     if (e.target.closest('.co-toggle')) return;
     const row = e.target.closest('.co-row');
-    if (row && row.dataset.company) toggleCompanyJobs(row.dataset.company);
+    if (row && row.dataset.company) toggleJobsPanel('company', row.dataset.company);
+  });
+
+  // 點地域圖某縣市/國家 → 展開/收合該地域職缺面板（委派）
+  $('#geo-chart').addEventListener('click', (e) => {
+    const row = e.target.closest('.geo-row');
+    if (row && row.dataset.geo) toggleJobsPanel('geo', row.dataset.geo);
   });
 
   // 公司職缺面板裡的收藏/標籤（與 #article-list 相同的委派）
