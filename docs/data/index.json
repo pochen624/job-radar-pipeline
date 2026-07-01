@@ -1,11 +1,17 @@
 {
- "updated": "2026-06-30T05:12:27Z",
+ "updated": "2026-07-01T05:30:59Z",
  "months": [
   {
    "year": "2026",
    "month": "06",
    "articles": 782,
    "days": 7
+  },
+  {
+   "year": "2026",
+   "month": "07",
+   "articles": 180,
+   "days": 1
   }
  ]
 }
