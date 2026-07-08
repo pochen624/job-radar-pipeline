@@ -41,18 +41,46 @@ cat data/pending.json | head -c 500   # 確認有 date / jobs / baseline
 
 若 `data/pending.json` 不存在或 jobs 為空 → 印出說明、**不要 commit**、直接結束。
 
-## Step 2：逐筆評分，寫出 `data/scores.json`
+## Step 2：分批評分 → 漸進寫出 `data/scores.json`
 
-對 `jobs` 與 `baseline` 的**每一筆**，依序產生一個評分物件。輸出檔：
+### 2a. 分批策略（避免 output limit）
+
+將 `jobs` 以 **每批 45 筆**為單位分批評分（`baseline` 單獨一批）。
+**每完成一批就立刻用 Write 工具將目前已累積的結果寫入 `data/scores.json`**，
+讓下一批萬一觸及 output limit 時，已完成的部分已安全落地。
+
+```
+第 1 批：jobs[0:45]   → Write scores.json（jobs 45筆 + baseline []）
+第 2 批：jobs[45:90]  → Write scores.json（jobs 90筆 + baseline []）
+第 3 批：jobs[90:135] → Write scores.json（jobs 135筆 + baseline []）
+第 4 批：jobs[135:N]  → Write scores.json（jobs 全部 + baseline []）
+baseline 批次         → Write scores.json（jobs 全部 + baseline 全部）
+```
+
+> `apply_scores.py` 的 `_merge` 已有容錯設計：`scores.json` 筆數少於 `pending` 時，
+> 超出範圍的職缺自動補中性值（`ai_relevance=0`、`is_ai_related=false`，不進清單）。
+> **即使部分完成也能 commit，網站仍會正常部署。**
+
+### 2b. output limit 中途停止時的處理
+
+若在某批次途中感知到 context 緊縮（連續兩批描述量大、或已處理超過 3 批），
+應立即：
+1. 將已完成的批次結果寫出 `data/scores.json`（不完整也沒關係）
+2. 繼續 Step 3（`apply_scores.py`）與 Step 4（commit/push）——讓已完成的部分先上線
+3. 在 Step 5「公佈欄」中誠實標示哪些職缺未完成評分
+
+**不要為了完整性而跳過 commit**；部分評分上線遠勝過什麼都沒輸出。
+
+### 2c. 評分欄位規格
+
+`data/scores.json` 格式：
 
 ```json
 {
-  "jobs":     [ {評分}, ... ],   // 長度與順序對齊 pending.jobs
-  "baseline": [ {評分}, ... ]    // 長度與順序對齊 pending.baseline
+  "jobs":     [ {評分}, ... ],
+  "baseline": [ {評分}, ... ]
 }
 ```
-
-每個「評分」物件欄位：
 
 | 欄位 | 型別 | 說明 |
 |---|---|---|
@@ -71,8 +99,6 @@ cat data/pending.json | head -c 500   # 確認有 date / jobs / baseline
 
 `baseline` 樣本同樣要給 `ai_tool_importance` / `ai_explicitly_required`（它代表全市場，多數可能偏低，但仍照實評）；其餘欄位照填即可。
 
-> 量大時可分批在思考中處理，但**最終 `data/scores.json` 必須包含所有筆數、順序對齊**。用 Write 工具一次寫出完整檔案。
-
 ## Step 3：套用分數 → 產生網站資料 + 溫度計
 
 ```bash
@@ -84,13 +110,44 @@ python apply_scores.py
 
 ## Step 4：commit + push
 
+依完成程度選擇 commit 訊息：
+
 ```bash
 git add docs/data data/ai_demand_history.csv
 git rm --cached data/scores.json data/pending.json 2>/dev/null || true   # 不追蹤暫存檔
-# 注意：commit 訊息「不要」加 [skip ci] —— 我們需要這個 push 觸發 pages.yml 把評分後的網站重新部署。
+
+# 完整完成時：
 git commit -m "data: Claude job scoring + AI demand ($(date -u +%F))"
+
+# 部分完成時（已評 X 筆，剩 Y 未評）：
+git commit -m "data: Claude job scoring (partial X/N) + AI demand ($(date -u +%F))"
+
 git push origin HEAD:main
 ```
 
-push 後 `pages.yml` 會自動把更新後的 `docs/` 重新部署到 GitHub Pages。
-完成後簡述：今日列出幾筆、AI 工具重要度今日/歷史、明文要求 AI 比例、commit hash。
+> ★ 絕對不要加 `[skip ci]`——需要這個 push 觸發 `pages.yml` 重新部署網站。
+
+## Step 5：公佈欄（完成報告）
+
+無論完整或部分完成，都要回報以下資訊：
+
+**完整完成時：**
+- 今日列出幾筆 AI 職缺
+- AI 工具重要度（今日 / 歷史）
+- 明文要求 AI 比例
+- commit hash
+
+**部分完成時，額外列出公佈欄：**
+
+```
+⚠️ 評分公佈欄（output limit 觸發，部分未完成）
+─────────────────────────────────────────────
+已評分：jobs[0:X]（X 筆）+ baseline（Y 筆）
+未評分：jobs[X:N]（剩 Z 筆）→ 自動補中性值，不進職缺清單
+原因：本次 context 使用量達上限，提前停止以保留已完成成果
+建議：下次手動執行 /score-jobs 可重新評分當日完整資料
+─────────────────────────────────────────────
+```
+
+> 部分完成仍要 commit + push，讓已評分的職缺先上線；
+> 未評分的職缺因 `ai_relevance=0` 不會出現在清單頁，不影響網站展示品質。
