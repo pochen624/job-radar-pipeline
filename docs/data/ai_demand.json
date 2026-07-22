@@ -1,1 +1,250 @@
-{}
+{
+ "today": {
+  "date": "2026-07-21",
+  "segment": {
+   "n": 112,
+   "avg_importance": 54.2,
+   "pct_required": 31.2,
+   "avg_relevance": 56.6,
+   "by_track": {
+    "跨域-資料分析": {
+     "n": 10,
+     "avg_importance": 57.8
+    },
+    "跨域-產品營運": {
+     "n": 27,
+     "avg_importance": 60.2
+    },
+    "工程/技術": {
+     "n": 39,
+     "avg_importance": 69.1
+    },
+    "跨域-行銷內容": {
+     "n": 15,
+     "avg_importance": 63.3
+    },
+    "其他": {
+     "n": 21,
+     "avg_importance": 10.7
+    }
+   },
+   "by_source": {
+    "Yourator": {
+     "n": 8,
+     "avg_importance": 51.2
+    },
+    "1111": {
+     "n": 1,
+     "avg_importance": 65.0
+    },
+    "linkedin": {
+     "n": 75,
+     "avg_importance": 64.6
+    },
+    "indeed": {
+     "n": 28,
+     "avg_importance": 26.9
+    }
+   }
+  },
+  "baseline": {
+   "n": 0,
+   "avg_importance": 0.0,
+   "pct_required": 0.0,
+   "avg_relevance": 0.0,
+   "by_track": {},
+   "by_source": {}
+  }
+ },
+ "cumulative": {
+  "days": 18,
+  "total_segment_jobs": 2545,
+  "total_baseline_jobs": 700,
+  "seg_avg_importance": 59.5,
+  "seg_pct_required": 35.9,
+  "base_avg_importance": 9.2,
+  "base_pct_required": 0.3
+ },
+ "trend": [
+  {
+   "date": "2026-06-24",
+   "n_segment": 180.0,
+   "seg_avg_importance": 69.8,
+   "seg_pct_required": 41.1,
+   "seg_avg_relevance": 71.0,
+   "n_baseline": 50.0,
+   "base_avg_importance": 9.9,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-06-25",
+   "n_segment": 180.0,
+   "seg_avg_importance": 54.0,
+   "seg_pct_required": 37.2,
+   "seg_avg_relevance": 54.0,
+   "n_baseline": 50.0,
+   "base_avg_importance": 6.6,
+   "base_pct_required": 2.0
+  },
+  {
+   "date": "2026-06-26",
+   "n_segment": 180.0,
+   "seg_avg_importance": 54.7,
+   "seg_pct_required": 29.4,
+   "seg_avg_relevance": 62.1,
+   "n_baseline": 50.0,
+   "base_avg_importance": 6.2,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-06-28",
+   "n_segment": 79.0,
+   "seg_avg_importance": 56.2,
+   "seg_pct_required": 30.4,
+   "seg_avg_relevance": 62.2,
+   "n_baseline": 50.0,
+   "base_avg_importance": 9.0,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-06-29",
+   "n_segment": 144.0,
+   "seg_avg_importance": 56.4,
+   "seg_pct_required": 38.2,
+   "seg_avg_relevance": 58.9,
+   "n_baseline": 50.0,
+   "base_avg_importance": 6.2,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-07-03",
+   "n_segment": 150.0,
+   "seg_avg_importance": 60.0,
+   "seg_pct_required": 25.3,
+   "seg_avg_relevance": 63.8,
+   "n_baseline": 50.0,
+   "base_avg_importance": 7.9,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-07-05",
+   "n_segment": 145.0,
+   "seg_avg_importance": 62.5,
+   "seg_pct_required": 36.6,
+   "seg_avg_relevance": 70.3,
+   "n_baseline": 50.0,
+   "base_avg_importance": 9.0,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-07-08",
+   "n_segment": 180.0,
+   "seg_avg_importance": 53.9,
+   "seg_pct_required": 38.3,
+   "seg_avg_relevance": 58.6,
+   "n_baseline": 50.0,
+   "base_avg_importance": 6.4,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-07-11",
+   "n_segment": 158.0,
+   "seg_avg_importance": 54.9,
+   "seg_pct_required": 33.5,
+   "seg_avg_relevance": 57.6,
+   "n_baseline": 50.0,
+   "base_avg_importance": 8.6,
+   "base_pct_required": 2.0
+  },
+  {
+   "date": "2026-07-12",
+   "n_segment": 132.0,
+   "seg_avg_importance": 69.5,
+   "seg_pct_required": 54.5,
+   "seg_avg_relevance": 74.0,
+   "n_baseline": 50.0,
+   "base_avg_importance": 12.5,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-07-13",
+   "n_segment": 141.0,
+   "seg_avg_importance": 63.6,
+   "seg_pct_required": 37.6,
+   "seg_avg_relevance": 58.3,
+   "n_baseline": 50.0,
+   "base_avg_importance": 11.5,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-07-15",
+   "n_segment": 141.0,
+   "seg_avg_importance": 61.4,
+   "seg_pct_required": 34.0,
+   "seg_avg_relevance": 60.2,
+   "n_baseline": 50.0,
+   "base_avg_importance": 10.6,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-07-16",
+   "n_segment": 170.0,
+   "seg_avg_importance": 65.3,
+   "seg_pct_required": 38.2,
+   "seg_avg_relevance": 64.4,
+   "n_baseline": 50.0,
+   "base_avg_importance": 14.7,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-07-17",
+   "n_segment": 131.0,
+   "seg_avg_importance": 49.9,
+   "seg_pct_required": 30.5,
+   "seg_avg_relevance": 53.0,
+   "n_baseline": 50.0,
+   "base_avg_importance": 9.9,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-07-18",
+   "n_segment": 134.0,
+   "seg_avg_importance": 61.6,
+   "seg_pct_required": 35.8,
+   "seg_avg_relevance": 63.6,
+   "n_baseline": 0.0,
+   "base_avg_importance": 0.0,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-07-19",
+   "n_segment": 86.0,
+   "seg_avg_importance": 62.5,
+   "seg_pct_required": 36.0,
+   "seg_avg_relevance": 62.1,
+   "n_baseline": 0.0,
+   "base_avg_importance": 0.0,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-07-20",
+   "n_segment": 102.0,
+   "seg_avg_importance": 59.7,
+   "seg_pct_required": 35.3,
+   "seg_avg_relevance": 63.0,
+   "n_baseline": 0.0,
+   "base_avg_importance": 0.0,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-07-21",
+   "n_segment": 112.0,
+   "seg_avg_importance": 54.2,
+   "seg_pct_required": 31.2,
+   "seg_avg_relevance": 56.6,
+   "n_baseline": 0.0,
+   "base_avg_importance": 0.0,
+   "base_pct_required": 0.0
+  }
+ ]
+}
