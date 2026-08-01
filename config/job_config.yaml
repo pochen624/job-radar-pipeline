@@ -19,9 +19,20 @@ keywords:
 
 # 地點（給 JobSpy / Indeed 用）
 location:
-  taiwan: "Taipei, Taiwan"     # 主要搜尋地點
+  taiwan: "Taipei, Taiwan"     # 主要搜尋地點（LinkedIn + Indeed）
   country_indeed: "Taiwan"     # Indeed 國家（必填，否則預設美國）
   include_remote: true         # 額外加抓一輪遠端／國際 AI 職
+
+  # 南部加抓（台南以南）。實測重點：
+  #  1. 只走 Indeed —— LinkedIn 對這些縣市會大量回傳新竹等不相干職缺，且每次多 3–7 秒。
+  #  2. location 字串必須用 Indeed 認得的寫法，否則「靜默回 0 筆」：
+  #     "Tainan, Taiwan" → 0 筆；"Tainan City" → 正常。
+  #     "Pingtung City, Taiwan" → 回高雄/台南；"Pingtung County" → 正常。
+  #  3. 關鍵字用寬詞 —— 現有 16 個 AI 關鍵字對高雄只回 3 筆，單一個 "AI" 就回 15 筆。
+  taiwan_extra:
+    - { name: "台南", location: "Tainan City",     sites: ["indeed"], keywords: ["AI", "資料", "數位"] }
+    - { name: "高雄", location: "Kaohsiung City",  sites: ["indeed"], keywords: ["AI", "資料", "數位"] }
+    - { name: "屏東", location: "Pingtung County", sites: ["indeed"], keywords: ["AI", "資料", "數位"] }
 
 # 篩選條件
 filters:

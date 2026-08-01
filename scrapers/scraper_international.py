@@ -15,6 +15,9 @@ from typing import List, Dict
 import time
 
 
+BOTH_SITES = ["linkedin", "indeed"]
+
+
 def scrape_international(
     keywords: List[str],
     location: str = "Taipei, Taiwan",
@@ -22,9 +25,10 @@ def scrape_international(
     results_per_site: int = 20,
     hours_old: int = 72,
     include_remote: bool = True,
+    extra_locations: List = None,
 ) -> List[Dict]:
     """
-    爬取 LinkedIn、Indeed 的台灣 + 遠端職缺
+    爬取 LinkedIn、Indeed 的台灣 + 遠端職缺（可加抓其他縣市，例如南部）
 
     Args:
         keywords: 搜尋關鍵字列表
@@ -33,39 +37,65 @@ def scrape_international(
         results_per_site: 每平台每關鍵字每地點抓幾筆
         hours_old: 只保留幾小時內的職缺
         include_remote: 是否額外加抓一輪遠端／國際職缺
+        extra_locations: 額外搜尋地點，每項可為字串或 dict
+            {name, location, sites, keywords, results_per_site}；預設只走 Indeed。
 
     Returns:
         標準化職缺列表
     """
     all_jobs = []
 
-    # (label, location, country_indeed) 各搜尋情境
-    passes = [("台灣", location, country_indeed)]
+    # (label, location, country_indeed, sites, keywords, results_wanted) 各搜尋情境
+    passes = [("台灣", location, country_indeed, BOTH_SITES, keywords, results_per_site)]
+    for spec in (extra_locations or []):
+        passes.append(_make_pass(spec, keywords, country_indeed, results_per_site))
     if include_remote:
-        passes.append(("遠端", "Remote", "worldwide"))
+        passes.append(("遠端", "Remote", "worldwide", BOTH_SITES, keywords, results_per_site))
 
-    for keyword in keywords:
-        for label, loc, country in passes:
-            for site in ["linkedin", "indeed"]:
+    # pass-major：不同 pass 的關鍵字清單可不同，故以 pass 為外層
+    for label, loc, country, sites, kws, n_want in passes:
+        for keyword in kws:
+            for site in sites:
                 try:
                     df = scrape_jobs(
                         site_name=[site],
                         search_term=keyword,
                         location=loc,
                         country_indeed=country,
-                        results_wanted=results_per_site,
+                        results_wanted=n_want,
                         hours_old=hours_old,
                         description_format="markdown",
                     )
-                    if df is not None and not df.empty:
-                        jobs = _normalize_jobspy_df(df, keyword, label)
-                        all_jobs.extend(jobs)
-                        print(f"   [{site}/{label}] {keyword}: {len(jobs)} jobs")
+                    n = 0 if df is None or df.empty else len(df)
+                    if n:
+                        all_jobs.extend(_normalize_jobspy_df(df, keyword, label))
+                    # 0 筆也要印：地點字串若不被平台接受會靜默回 0，不印就完全看不出來
+                    print(f"   [{site}/{label}] {keyword}: {n} jobs")
                 except Exception as e:
                     print(f"   [{site}/{label}] {keyword}: {e}")
-            time.sleep(2)
+            # LinkedIn 需要較長間隔（其內部另有 3–7 秒 sleep）；純 Indeed 的 pass 可縮短
+            time.sleep(2 if "linkedin" in sites else 1)
 
     return all_jobs
+
+
+def _make_pass(spec, default_keywords, default_country, default_results):
+    """把 config 的 extra location 正規化成 pass tuple。
+
+    接受純字串或 dict。預設**只走 Indeed**：實測 LinkedIn 對台灣南部縣市會大量
+    回傳新竹等不相干職缺，且每次呼叫多 3–7 秒。
+    """
+    if isinstance(spec, str):
+        spec = {"location": spec}
+    loc = spec.get("location") or spec.get("name") or ""
+    return (
+        spec.get("name") or loc,
+        loc,
+        spec.get("country_indeed", default_country),
+        list(spec.get("sites") or ["indeed"]),
+        list(spec.get("keywords") or default_keywords),
+        int(spec.get("results_per_site") or default_results),
+    )
 
 
 def _normalize_jobspy_df(df: pd.DataFrame, keyword: str, scope: str) -> List[Dict]:

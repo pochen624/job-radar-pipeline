@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>AI 職缺雷達 · AI Job Radar</title>
-<link rel="stylesheet" href="css/style.css?v=18">
+<link rel="stylesheet" href="css/style.css?v=19">
 </head>
 <body>
 
@@ -113,6 +113,9 @@
   <!-- 今日工作地域分佈（甜甜圈 + 可點擊縣市/國家長條） -->
   <div id="geo-chart" class="geo-chart" style="display:none"></div>
 
+  <!-- 南台灣（台南／高雄／屏東）職缺趨勢：堆疊長條 + 7 日滾動平均 -->
+  <div id="south-chart" class="south-chart" style="display:none"></div>
+
   <!-- 點長條後展開的「職缺面板」（公司或地域，由 app.js 即時填入） -->
   <div id="company-jobs-panel" class="company-jobs-panel" style="display:none"></div>
 
@@ -134,7 +137,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
-<script src="js/app.js?v=18"></script>
-<script src="js/search.js?v=18"></script>
+<script src="js/app.js?v=19"></script>
+<script src="js/search.js?v=19"></script>
 </body>
 </html>

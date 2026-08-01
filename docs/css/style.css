@@ -1095,3 +1095,31 @@ a:hover { color: var(--accent-hover); }
   .geo-secs { grid-template-columns: 1fr; gap: 14px; }
   .geo-row { grid-template-columns: 96px 1fr 28px; }
 }
+
+/* 南台灣職缺趨勢（堆疊長條 + 7 日滾動平均） */
+.south-chart { background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px; margin-bottom: 18px; }
+.south-chart .cc-head { font-size: 14px; color: var(--text); margin-bottom: 10px; }
+.south-chart .cc-head b { color: var(--accent-hover); }
+.south-chart .cc-sub { font-size: 12px; color: var(--text-dim); margin-left: 8px; }
+.st-legend { flex-direction: row; flex-wrap: wrap; gap: 14px; margin-bottom: 6px; }
+.st-leg { cursor: pointer; }
+.st-leg:hover { color: var(--accent-hover); }
+.st-leg-empty { cursor: default; opacity: 0.5; }   /* 該期間無資料：不可點，明確表示而非點了沒反應 */
+.st-leg-line { cursor: default; color: var(--text-dim); }
+/* 滾動平均線的圖例色塊：用線段而非方塊，和類別色塊區分開 */
+.st-line-swatch { display: inline-block; width: 14px; height: 2px; border-radius: 1px;
+  background: var(--text); opacity: 0.85; margin-right: 7px; vertical-align: middle; }
+.st-tick { fill: var(--text-dim); font-size: 9px; }
+.st-hit:hover { fill: rgba(255,255,255,0.05); }
+.st-note { margin-top: 10px; font-size: 11px; color: var(--text-dim);
+  border-top: 1px dashed var(--border); padding-top: 8px; line-height: 1.6; }
+/* 資料表檢視（可核對數字／無障礙），預設收合 */
+.st-table { margin-top: 10px; }
+.st-table summary { font-size: 12px; color: var(--text-dim); cursor: pointer; }
+.st-table summary:hover { color: var(--accent-hover); }
+.st-table table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
+.st-table th, .st-table td { text-align: right; padding: 4px 8px; border-bottom: 1px solid var(--border); }
+.st-table th:first-child, .st-table td:first-child { text-align: left; }
+.st-table th { color: var(--text-dim); font-weight: 600; }
+.st-table td { color: var(--text); }

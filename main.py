@@ -116,6 +116,7 @@ def main():
             results_per_site=filters["results_per_site"],
             hours_old=filters["hours_old"],
             include_remote=loc.get("include_remote", True),
+            extra_locations=loc.get("taiwan_extra") or [],
         ))
 
     print(f"\nTotal scraped: {len(all_raw_jobs)}")

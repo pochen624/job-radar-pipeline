@@ -57,6 +57,7 @@ let state = {
   taggedDates: new Set(),    // dates with tagged articles
   curatedDates: {},          // dates with AI curated content {date: [flags]}
   dateCounts: {},            // date -> article count
+  southTrend: {},            // date -> {臺南市: n, 高雄市: n, 屏東縣: n}（南台灣趨勢圖用）
   viewMode: 'articles',
   history: [],       // [{type:'day',date:'2026-04-05'}, {type:'folder',name:'AI工具'}, ...]
   historyIndex: -1,
@@ -100,6 +101,7 @@ async function buildDateIndex() {
   if (!index) return;
   state.availableDates.clear();
   state.dateCounts = {};
+  state.southTrend = {};
 
   for (const m of index.months) {
     const arts = await loadMonth(m.year, m.month);
@@ -111,6 +113,12 @@ async function buildDateIndex() {
       // Check if any article on this date has manual tags
       if ((a.tags || []).some(t => isManualTag(t))) {
         state.taggedDates.add(d);
+      }
+      // 南台灣趨勢：沿用同一輪已下載的月彙總資料累加，不額外發任何請求
+      const label = classifyGeo(a.location).label;
+      if (SOUTH_CITIES.includes(label)) {
+        const t = (state.southTrend[d] = state.southTrend[d] || {});
+        t[label] = (t[label] || 0) + 1;
       }
     });
     Object.assign(state.dateCounts, byDate);
@@ -449,6 +457,161 @@ function renderGeoChart(articles) {
     + `<div class="geo-secs">${sec(`🇹🇼 台灣各縣市（${twN}）`, twEntries)}${sec(`🌍 海外各國（${ovN}）`, ovEntries)}</div>`;
 }
 
+// ── 南台灣（台南以南）職缺趨勢 ──────────────────────────────────
+// 每日一根堆疊長條（台南／高雄／屏東，總高＝南部合計）＋ 7 日滾動平均線。
+// 資料稀疏（多數日為 0、偶有尖峰），堆疊長條比三條折線清楚——折線會全糊在 0 上。
+// 配色取自 dataviz 參考色盤的深色前三槽，已通過色盲/對比驗證（adjacent 與 all-pairs 皆 PASS）。
+const SOUTH_CITIES = ['臺南市', '高雄市', '屏東縣'];
+const SOUTH_SERIES = [
+  { key: '臺南市', label: '台南', color: '#3987e5' },
+  { key: '高雄市', label: '高雄', color: '#d95926' },
+  { key: '屏東縣', label: '屏東', color: '#199e70' },
+];
+const SOUTH_MAX_DAYS = 90;   // 只畫最近 N 天，超出會在副標明說（避免長條細到看不見）
+const SOUTH_ROLL = 7;        // 滾動平均天數
+
+function renderSouthTrend() {
+  const el = document.getElementById('south-chart');
+  if (!el) return;
+  const allDates = Object.keys(state.dateCounts || {}).sort();
+  if (!allDates.length) { el.style.display = 'none'; return; }
+
+  const dates = allDates.slice(-SOUTH_MAX_DAYS);
+  const dayOf = d => state.southTrend[d] || {};
+  const totalOf = d => SOUTH_CITIES.reduce((s, c) => s + (dayOf(d)[c] || 0), 0);
+  const totals = dates.map(totalOf);
+  const grand = {};
+  SOUTH_CITIES.forEach(c => { grand[c] = dates.reduce((s, d) => s + (dayOf(d)[c] || 0), 0); });
+  const grandAll = totals.reduce((a, b) => a + b, 0);
+
+  el.style.display = '';
+
+  // 7 日滾動平均（前 N-1 天用可得天數，避免開頭斷線）
+  const roll = totals.map((_, i) => {
+    const from = Math.max(0, i - SOUTH_ROLL + 1);
+    const win = totals.slice(from, i + 1);
+    return win.reduce((a, b) => a + b, 0) / win.length;
+  });
+
+  // ── 幾何：viewBox 等比縮放（不用 preserveAspectRatio="none"，否則圓點會被拉扁）──
+  const W = 720, H = 210, padL = 34, padR = 10, padT = 12, padB = 26;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const n = dates.length;
+  const band = plotW / n;
+  const barW = Math.max(2, Math.min(24, band - 2));   // ≤24px，與鄰棒間留 2px 表面間隙
+  const maxY = Math.max(1, ...totals);
+  const yOf = v => padT + plotH - (v / maxY) * plotH;
+  const xOf = i => padL + band * i + (band - barW) / 2;
+
+  // 網格線：1px 實線、退到背景後面
+  const ticks = niceTicks(maxY);
+  const grid = ticks.map(t =>
+    `<line x1="${padL}" y1="${yOf(t).toFixed(1)}" x2="${W - padR}" y2="${yOf(t).toFixed(1)}" stroke="var(--border)" stroke-width="1"/>`
+    + `<text x="${padL - 6}" y="${(yOf(t) + 3.5).toFixed(1)}" text-anchor="end" class="st-tick">${t}</text>`
+  ).join('');
+
+  // 堆疊長條：由下往上疊，段與段之間留 2px 表面間隙；最上面一段做 4px 圓角、底部維持方角
+  let bars = '';
+  dates.forEach((d, i) => {
+    const day = dayOf(d);
+    const x = xOf(i);
+    let acc = 0;
+    const stack = SOUTH_CITIES.map(c => ({ c, v: day[c] || 0 })).filter(s => s.v > 0);
+    stack.forEach((s, si) => {
+      const yTop = yOf(acc + s.v), yBot = yOf(acc);
+      let h = yBot - yTop;
+      if (si < stack.length - 1) h = Math.max(1, h - 2);   // 表面間隙（最上層不扣）
+      const color = SOUTH_SERIES.find(x2 => x2.key === s.c).color;
+      const isTop = si === stack.length - 1;
+      bars += isTop ? topRoundedRect(x, yTop, barW, h, color)
+                    : `<rect x="${x.toFixed(1)}" y="${yTop.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" fill="${color}"/>`;
+      acc += s.v;
+    });
+  });
+
+  // 7 日滾動平均線：中性墨色（非類別色，避免被誤讀成第 4 個縣市），2px 圓角接點
+  const linePts = roll.map((v, i) => `${(xOf(i) + barW / 2).toFixed(1)},${yOf(v).toFixed(1)}`).join(' ');
+  const line = `<polyline points="${linePts}" fill="none" stroke="var(--text)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>`;
+
+  // X 軸日期標籤：只標頭尾與間隔，避免擠在一起
+  const step = Math.max(1, Math.ceil(n / 8));
+  const xlabels = dates.map((d, i) =>
+    (i % step === 0 || i === n - 1)
+      ? `<text x="${(xOf(i) + barW / 2).toFixed(1)}" y="${H - 8}" text-anchor="middle" class="st-tick">${d.slice(5)}</text>` : ''
+  ).join('');
+
+  // 命中區：整欄透明矩形（比長條本身大，好點好懸停），用原生 title 顯示當日明細
+  const hits = dates.map((d, i) => {
+    const day = dayOf(d);
+    const detail = SOUTH_SERIES.filter(s => day[s.key]).map(s => `${s.label} ${day[s.key]}`).join('、') || '無';
+    return `<rect class="st-hit" x="${(padL + band * i).toFixed(1)}" y="${padT}" width="${band.toFixed(1)}" height="${plotH}" fill="transparent">`
+      + `<title>${d}　南部合計 ${totalOf(d)}　（${detail}）</title></rect>`;
+  }).join('');
+
+  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="height:auto;display:block" role="img"
+      aria-label="南台灣每日職缺數趨勢：台南、高雄、屏東堆疊長條與 ${SOUTH_ROLL} 日滾動平均線">
+      ${grid}${bars}${line}${xlabels}${hits}</svg>`;
+
+  // 圖例：點縣市 → 展開當日該縣市職缺（沿用既有地域面板）
+  const legend = SOUTH_SERIES.map(s => {
+    const has = grand[s.key] > 0;
+    return `<span class="geo-leg ${has ? 'st-leg' : 'st-leg-empty'}" data-geo="${escHtml(s.key)}"`
+      + ` title="${has ? `點擊看${s.label}職缺（當天沒有就跳到最近有的日期）` : `這段期間尚無${s.label}職缺`}">`
+      + `<i style="background:${s.color}"></i>${s.label} <b>${grand[s.key]}</b></span>`;
+  }).join('')
+    + `<span class="geo-leg st-leg-line"><i class="st-line-swatch"></i>${SOUTH_ROLL} 日平均</span>`;
+
+  // 表格檢視（無障礙／可核對數字），預設收合，只列有職缺的日期
+  const rows = dates.filter(d => totalOf(d) > 0).map(d => {
+    const day = dayOf(d);
+    return `<tr><td>${d}</td>${SOUTH_CITIES.map(c => `<td>${day[c] || 0}</td>`).join('')}<td><b>${totalOf(d)}</b></td></tr>`;
+  }).join('');
+  const table = `<details class="st-table"><summary>資料表（${dates.filter(d => totalOf(d) > 0).length} 個有職缺的日期）</summary>`
+    + `<table><thead><tr><th>日期</th>${SOUTH_SERIES.map(s => `<th>${s.label}</th>`).join('')}<th>合計</th></tr></thead>`
+    + `<tbody>${rows || '<tr><td colspan="5">目前尚無南部職缺</td></tr>'}</tbody></table></details>`;
+
+  const rangeNote = allDates.length > dates.length
+    ? `（顯示最近 ${dates.length} 天，共 ${allDates.length} 天）` : '';
+
+  el.innerHTML = `<div class="cc-head">🌅 南台灣職缺趨勢 — 累計 <b>${grandAll}</b> 筆`
+    + `<span class="cc-sub">${dates[0].slice(5)} → ${dates[n - 1].slice(5)}${rangeNote}</span></div>`
+    + `<div class="geo-legend st-legend">${legend}</div>`
+    + svg + table
+    + `<div class="st-note">※ 台南以南（台南／高雄／屏東）。國際平台原先只搜台北，南部職缺僅由 1111／Yourator 全國搜尋帶入，故早期數字偏低；擴大南部搜尋後才會反映真實水準。</div>`;
+}
+
+// 點圖例看該縣市職缺：當天有就直接展開；當天沒有就自動跳到「最近一個有該縣市職缺的日期」
+// （趨勢圖是跨日的，若只看當天常常是空的，點了沒反應會像壞掉）
+async function showSouthCityJobs(city) {
+  const hasToday = (window.__dayArticles || []).some(a => classifyGeo(a.location).label === city);
+  if (hasToday) { toggleJobsPanel('geo', city); return; }
+  const dates = Object.keys(state.southTrend)
+    .filter(d => (state.southTrend[d][city] || 0) > 0).sort();
+  if (!dates.length) return;                    // 整段期間都沒有 → 圖例已標示為無資料
+  await showDay(dates[dates.length - 1]);       // showDay 會重繪並清掉面板，故之後才開
+  openJobsPanel('geo', city);
+}
+
+// 上緣圓角、底部方角的長條（圓角半徑受高度與寬度限制，避免細段變形）
+function topRoundedRect(x, y, w, h, fill) {
+  const r = Math.max(0, Math.min(4, h / 2, w / 2));
+  const d = `M${x.toFixed(1)},${(y + h).toFixed(1)} V${(y + r).toFixed(1)} `
+    + `Q${x.toFixed(1)},${y.toFixed(1)} ${(x + r).toFixed(1)},${y.toFixed(1)} `
+    + `H${(x + w - r).toFixed(1)} Q${(x + w).toFixed(1)},${y.toFixed(1)} ${(x + w).toFixed(1)},${(y + r).toFixed(1)} `
+    + `V${(y + h).toFixed(1)} Z`;
+  return `<path d="${d}" fill="${fill}"/>`;
+}
+
+// Y 軸刻度：整數、好讀（職缺數是計數，不能出現 2.5 這種刻度）
+function niceTicks(max) {
+  const raw = Math.max(1, max / 4);             // 目標約 4 段
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const stepV = [1, 2, 5, 10].map(m => m * mag).find(s => s >= raw) || mag * 10;
+  const out = [];
+  for (let v = 0; v <= max + 1e-9; v += stepV) out.push(Math.round(v));
+  return [...new Set(out)];
+}
+
 // ── 職缺面板：點公司長條或地域長條後，在圖表下方展開該選取的所有職缺詳細卡片 ──
 // 依選取類型篩出職缺（company＝同公司；geo＝同地域標籤）
 function selJobs(kind, key) {
@@ -503,6 +666,7 @@ function renderArticles(articles) {
   closeJobsPanel();  // 換日／換篩選時先收掉舊的職缺面板
   renderCompanyChart(articles);
   renderGeoChart(articles);
+  renderSouthTrend();   // 跨日趨勢，資料來自 buildDateIndex 預先累加的 state.southTrend
   const list = $('#article-list');
   list.innerHTML = '';
 
@@ -1271,6 +1435,12 @@ function setupEvents() {
   $('#geo-chart').addEventListener('click', (e) => {
     const row = e.target.closest('.geo-row');
     if (row && row.dataset.geo) toggleJobsPanel('geo', row.dataset.geo);
+  });
+
+  // 點南部趨勢圖的圖例 → 展開該縣市職缺；當天沒有就跳到最近一個有的日期
+  $('#south-chart').addEventListener('click', (e) => {
+    const leg = e.target.closest('.st-leg');
+    if (leg && leg.dataset.geo) showSouthCityJobs(leg.dataset.geo);
   });
 
   // 公司職缺面板裡的收藏/標籤（與 #article-list 相同的委派）

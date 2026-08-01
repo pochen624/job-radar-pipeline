@@ -57,8 +57,11 @@ def build_site(display_jobs: List[Dict], stats: Dict = None,
     _rebuild_index(data_dir)
 
     # 4. AI 需求溫度計
-    with open(os.path.join(data_dir, "ai_demand.json"), "w", encoding="utf-8") as f:
-        json.dump(stats or {}, f, ensure_ascii=False, indent=1)
+    # 只在有 stats 時覆寫：爬蟲（main.py）單獨跑、沒有 GEMINI_API_KEY 時 stats 為 None，
+    # 若照寫會把前一次評分產生的溫度計資料蓋成 {}，前端整塊溫度計（含趨勢圖）就消失。
+    if stats:
+        with open(os.path.join(data_dir, "ai_demand.json"), "w", encoding="utf-8") as f:
+            json.dump(stats, f, ensure_ascii=False, indent=1)
 
     print(f"[SITE] docs/data 更新完成（{date_str}：{len(articles)} 筆）")
     return month_dir
