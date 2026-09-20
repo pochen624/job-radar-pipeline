@@ -1,49 +1,45 @@
 {
  "today": {
-  "date": "2026-09-18",
+  "date": "2026-09-19",
   "segment": {
-   "n": 97,
-   "avg_importance": 57.2,
-   "pct_required": 34.0,
-   "avg_relevance": 60.5,
+   "n": 67,
+   "avg_importance": 55.4,
+   "pct_required": 31.3,
+   "avg_relevance": 61.1,
    "by_track": {
-    "工程/技術": {
-     "n": 35,
-     "avg_importance": 67.3
-    },
     "其他": {
-     "n": 16,
-     "avg_importance": 16.2
-    },
-    "跨域-行銷內容": {
      "n": 7,
-     "avg_importance": 62.9
-    },
-    "跨域-資料分析": {
-     "n": 19,
-     "avg_importance": 55.5
+     "avg_importance": 11.0
     },
     "跨域-產品營運": {
-     "n": 20,
-     "avg_importance": 72.0
+     "n": 21,
+     "avg_importance": 69.0
+    },
+    "工程/技術": {
+     "n": 17,
+     "avg_importance": 55.3
+    },
+    "跨域-行銷內容": {
+     "n": 9,
+     "avg_importance": 62.6
+    },
+    "跨域-資料分析": {
+     "n": 13,
+     "avg_importance": 52.7
     }
    },
    "by_source": {
     "Yourator": {
-     "n": 15,
-     "avg_importance": 40.7
-    },
-    "1111": {
-     "n": 2,
-     "avg_importance": 67.5
+     "n": 5,
+     "avg_importance": 43.0
     },
     "linkedin": {
-     "n": 57,
-     "avg_importance": 71.1
+     "n": 44,
+     "avg_importance": 65.6
     },
     "indeed": {
-     "n": 23,
-     "avg_importance": 32.8
+     "n": 18,
+     "avg_importance": 34.0
     }
    }
   },
@@ -57,8 +53,8 @@
   }
  },
  "cumulative": {
-  "days": 69,
-  "total_segment_jobs": 8515,
+  "days": 70,
+  "total_segment_jobs": 8582,
   "total_baseline_jobs": 750,
   "seg_avg_importance": 57.2,
   "seg_pct_required": 37.6,
@@ -752,6 +748,16 @@
    "seg_avg_importance": 57.2,
    "seg_pct_required": 34.0,
    "seg_avg_relevance": 60.5,
+   "n_baseline": 0.0,
+   "base_avg_importance": 0.0,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-09-19",
+   "n_segment": 67.0,
+   "seg_avg_importance": 55.4,
+   "seg_pct_required": 31.3,
+   "seg_avg_relevance": 61.1,
    "n_baseline": 0.0,
    "base_avg_importance": 0.0,
    "base_pct_required": 0.0
