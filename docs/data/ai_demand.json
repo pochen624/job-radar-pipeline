@@ -1,49 +1,49 @@
 {
  "today": {
-  "date": "2026-10-12",
+  "date": "2026-10-13",
   "segment": {
-   "n": 62,
-   "avg_importance": 63.7,
-   "pct_required": 40.3,
-   "avg_relevance": 68.1,
+   "n": 105,
+   "avg_importance": 56.7,
+   "pct_required": 45.7,
+   "avg_relevance": 60.0,
    "by_track": {
-    "工程/技術": {
-     "n": 17,
-     "avg_importance": 79.8
-    },
-    "跨域-行銷內容": {
-     "n": 5,
-     "avg_importance": 65.0
-    },
     "跨域-產品營運": {
-     "n": 18,
-     "avg_importance": 64.2
+     "n": 33,
+     "avg_importance": 66.4
+    },
+    "工程/技術": {
+     "n": 37,
+     "avg_importance": 61.1
     },
     "其他": {
      "n": 8,
-     "avg_importance": 28.1
+     "avg_importance": 9.2
+    },
+    "跨域-行銷內容": {
+     "n": 14,
+     "avg_importance": 63.8
     },
     "跨域-資料分析": {
-     "n": 14,
-     "avg_importance": 63.6
+     "n": 13,
+     "avg_importance": 41.3
     }
    },
    "by_source": {
     "Yourator": {
-     "n": 8,
-     "avg_importance": 47.5
+     "n": 4,
+     "avg_importance": 46.2
     },
     "1111": {
-     "n": 2,
-     "avg_importance": 32.5
+     "n": 7,
+     "avg_importance": 33.3
     },
     "linkedin": {
-     "n": 49,
-     "avg_importance": 69.6
+     "n": 69,
+     "avg_importance": 68.8
     },
     "indeed": {
-     "n": 3,
-     "avg_importance": 31.7
+     "n": 25,
+     "avg_importance": 31.6
     }
    }
   },
@@ -57,8 +57,8 @@
   }
  },
  "cumulative": {
-  "days": 92,
-  "total_segment_jobs": 10646,
+  "days": 93,
+  "total_segment_jobs": 10751,
   "total_baseline_jobs": 790,
   "seg_avg_importance": 57.2,
   "seg_pct_required": 38.1,
@@ -982,6 +982,16 @@
    "seg_avg_importance": 63.7,
    "seg_pct_required": 40.3,
    "seg_avg_relevance": 68.1,
+   "n_baseline": 0.0,
+   "base_avg_importance": 0.0,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-10-13",
+   "n_segment": 105.0,
+   "seg_avg_importance": 56.7,
+   "seg_pct_required": 45.7,
+   "seg_avg_relevance": 60.0,
    "n_baseline": 0.0,
    "base_avg_importance": 0.0,
    "base_pct_required": 0.0
