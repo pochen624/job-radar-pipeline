@@ -1,45 +1,37 @@
 {
  "today": {
-  "date": "2026-10-24",
+  "date": "2026-10-25",
   "segment": {
-   "n": 33,
-   "avg_importance": 41.5,
-   "pct_required": 15.2,
-   "avg_relevance": 42.1,
+   "n": 11,
+   "avg_importance": 35.1,
+   "pct_required": 9.1,
+   "avg_relevance": 44.8,
    "by_track": {
-    "其他": {
+    "工程/技術": {
      "n": 7,
-     "avg_importance": 16.4
+     "avg_importance": 35.9
     },
     "跨域-產品營運": {
-     "n": 10,
-     "avg_importance": 43.5
-    },
-    "工程/技術": {
-     "n": 11,
-     "avg_importance": 54.1
+     "n": 1,
+     "avg_importance": 40.0
     },
     "跨域-行銷內容": {
-     "n": 4,
-     "avg_importance": 48.8
+     "n": 2,
+     "avg_importance": 45.0
     },
-    "跨域-資料分析": {
+    "其他": {
      "n": 1,
-     "avg_importance": 30.0
+     "avg_importance": 5.0
     }
    },
    "by_source": {
-    "Yourator": {
+    "indeed": {
      "n": 6,
-     "avg_importance": 15.8
+     "avg_importance": 24.7
     },
     "linkedin": {
-     "n": 13,
-     "avg_importance": 58.8
-    },
-    "indeed": {
-     "n": 14,
-     "avg_importance": 36.4
+     "n": 5,
+     "avg_importance": 47.6
     }
    }
   },
@@ -53,8 +45,8 @@
   }
  },
  "cumulative": {
-  "days": 104,
-  "total_segment_jobs": 11433,
+  "days": 105,
+  "total_segment_jobs": 11444,
   "total_baseline_jobs": 790,
   "seg_avg_importance": 56.9,
   "seg_pct_required": 37.8,
@@ -1098,6 +1090,16 @@
    "seg_avg_importance": 41.5,
    "seg_pct_required": 15.2,
    "seg_avg_relevance": 42.1,
+   "n_baseline": 0.0,
+   "base_avg_importance": 0.0,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-10-25",
+   "n_segment": 11.0,
+   "seg_avg_importance": 35.1,
+   "seg_pct_required": 9.1,
+   "seg_avg_relevance": 44.8,
    "n_baseline": 0.0,
    "base_avg_importance": 0.0,
    "base_pct_required": 0.0
