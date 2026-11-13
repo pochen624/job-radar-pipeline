@@ -1,49 +1,49 @@
 {
  "today": {
-  "date": "2026-11-11",
+  "date": "2026-11-12",
   "segment": {
-   "n": 66,
-   "avg_importance": 26.8,
-   "pct_required": 10.6,
-   "avg_relevance": 30.4,
+   "n": 149,
+   "avg_importance": 14.3,
+   "pct_required": 3.4,
+   "avg_relevance": 14.8,
    "by_track": {
-    "跨域-行銷內容": {
-     "n": 2,
-     "avg_importance": 50.0
+    "工程/技術": {
+     "n": 12,
+     "avg_importance": 55.0
     },
     "跨域-產品營運": {
-     "n": 12,
-     "avg_importance": 44.8
-    },
-    "跨域-資料分析": {
-     "n": 6,
-     "avg_importance": 41.7
+     "n": 13,
+     "avg_importance": 50.8
     },
     "其他": {
-     "n": 27,
+     "n": 120,
      "avg_importance": 5.2
     },
-    "工程/技術": {
-     "n": 19,
-     "avg_importance": 38.9
+    "跨域-資料分析": {
+     "n": 3,
+     "avg_importance": 51.7
+    },
+    "跨域-行銷內容": {
+     "n": 1,
+     "avg_importance": 30.0
     }
    },
    "by_source": {
     "Yourator": {
-     "n": 10,
-     "avg_importance": 48.3
+     "n": 26,
+     "avg_importance": 20.5
     },
     "1111": {
-     "n": 27,
-     "avg_importance": 5.4
-    },
-    "indeed": {
-     "n": 16,
-     "avg_importance": 35.9
+     "n": 97,
+     "avg_importance": 4.0
     },
     "linkedin": {
-     "n": 13,
-     "avg_importance": 43.5
+     "n": 15,
+     "avg_importance": 54.7
+    },
+    "indeed": {
+     "n": 11,
+     "avg_importance": 35.2
     }
    }
   },
@@ -57,11 +57,11 @@
   }
  },
  "cumulative": {
-  "days": 122,
-  "total_segment_jobs": 12524,
+  "days": 123,
+  "total_segment_jobs": 12673,
   "total_baseline_jobs": 790,
-  "seg_avg_importance": 54.8,
-  "seg_pct_required": 35.5,
+  "seg_avg_importance": 54.3,
+  "seg_pct_required": 35.1,
   "base_avg_importance": 9.2,
   "base_pct_required": 0.4
  },
@@ -1282,6 +1282,16 @@
    "seg_avg_importance": 26.8,
    "seg_pct_required": 10.6,
    "seg_avg_relevance": 30.4,
+   "n_baseline": 0.0,
+   "base_avg_importance": 0.0,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-11-12",
+   "n_segment": 149.0,
+   "seg_avg_importance": 14.3,
+   "seg_pct_required": 3.4,
+   "seg_avg_relevance": 14.8,
    "n_baseline": 0.0,
    "base_avg_importance": 0.0,
    "base_pct_required": 0.0
