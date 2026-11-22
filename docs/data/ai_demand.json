@@ -1,49 +1,45 @@
 {
  "today": {
-  "date": "2026-11-20",
+  "date": "2026-11-21",
   "segment": {
-   "n": 112,
-   "avg_importance": 21.1,
-   "pct_required": 3.6,
-   "avg_relevance": 21.5,
+   "n": 35,
+   "avg_importance": 44.1,
+   "pct_required": 11.4,
+   "avg_relevance": 51.6,
    "by_track": {
-    "跨域-產品營運": {
-     "n": 14,
-     "avg_importance": 49.5
+    "其他": {
+     "n": 12,
+     "avg_importance": 17.1
     },
     "工程/技術": {
-     "n": 27,
-     "avg_importance": 28.5
+     "n": 19,
+     "avg_importance": 56.8
     },
-    "其他": {
-     "n": 61,
-     "avg_importance": 8.4
-    },
-    "跨域-行銷內容": {
-     "n": 8,
-     "avg_importance": 37.2
+    "跨域-產品營運": {
+     "n": 2,
+     "avg_importance": 60.0
     },
     "跨域-資料分析": {
-     "n": 2,
-     "avg_importance": 45.0
+     "n": 1,
+     "avg_importance": 85.0
+    },
+    "跨域-行銷內容": {
+     "n": 1,
+     "avg_importance": 55.0
     }
    },
    "by_source": {
-    "Yourator": {
-     "n": 25,
-     "avg_importance": 13.4
-    },
     "1111": {
-     "n": 59,
-     "avg_importance": 8.5
-    },
-    "indeed": {
-     "n": 14,
-     "avg_importance": 52.6
+     "n": 4,
+     "avg_importance": 7.5
     },
     "linkedin": {
-     "n": 14,
-     "avg_importance": 56.3
+     "n": 13,
+     "avg_importance": 60.4
+    },
+    "indeed": {
+     "n": 18,
+     "avg_importance": 40.6
     }
    }
   },
@@ -57,8 +53,8 @@
   }
  },
  "cumulative": {
-  "days": 131,
-  "total_segment_jobs": 13208,
+  "days": 132,
+  "total_segment_jobs": 13243,
   "total_baseline_jobs": 790,
   "seg_avg_importance": 53.4,
   "seg_pct_required": 34.1,
@@ -1372,6 +1368,16 @@
    "seg_avg_importance": 21.1,
    "seg_pct_required": 3.6,
    "seg_avg_relevance": 21.5,
+   "n_baseline": 0.0,
+   "base_avg_importance": 0.0,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-11-21",
+   "n_segment": 35.0,
+   "seg_avg_importance": 44.1,
+   "seg_pct_required": 11.4,
+   "seg_avg_relevance": 51.6,
    "n_baseline": 0.0,
    "base_avg_importance": 0.0,
    "base_pct_required": 0.0
