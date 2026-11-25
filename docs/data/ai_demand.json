@@ -1,45 +1,49 @@
 {
  "today": {
-  "date": "2026-11-23",
+  "date": "2026-11-24",
   "segment": {
-   "n": 73,
-   "avg_importance": 51.4,
-   "pct_required": 21.9,
-   "avg_relevance": 48.2,
+   "n": 95,
+   "avg_importance": 30.1,
+   "pct_required": 12.6,
+   "avg_relevance": 29.7,
    "by_track": {
-    "跨域-產品營運": {
-     "n": 21,
-     "avg_importance": 45.1
-    },
-    "其他": {
-     "n": 16,
-     "avg_importance": 24.7
-    },
-    "跨域-行銷內容": {
-     "n": 6,
-     "avg_importance": 57.5
-    },
     "工程/技術": {
-     "n": 27,
-     "avg_importance": 69.4
+     "n": 53,
+     "avg_importance": 28.3
+    },
+    "跨域-產品營運": {
+     "n": 22,
+     "avg_importance": 32.7
     },
     "跨域-資料分析": {
-     "n": 3,
-     "avg_importance": 63.3
+     "n": 5,
+     "avg_importance": 61.0
+    },
+    "其他": {
+     "n": 10,
+     "avg_importance": 7.3
+    },
+    "跨域-行銷內容": {
+     "n": 5,
+     "avg_importance": 51.0
     }
    },
    "by_source": {
     "Yourator": {
-     "n": 23,
-     "avg_importance": 44.8
+     "n": 34,
+     "avg_importance": 14.4
+    },
+    "1111": {
+     "n": 11,
+     "avg_importance": 10.3
     },
     "linkedin": {
-     "n": 28,
-     "avg_importance": 62.6
+     "n": 22,
+     "avg_importance": 55.2
     },
     "indeed": {
-     "n": 22,
-     "avg_importance": 44.1
+     "n": 28,
+     "avg_importance": 37.0
     }
    }
   },
@@ -53,11 +57,11 @@
   }
  },
  "cumulative": {
-  "days": 134,
-  "total_segment_jobs": 13404,
+  "days": 135,
+  "total_segment_jobs": 13499,
   "total_baseline_jobs": 790,
-  "seg_avg_importance": 53.3,
-  "seg_pct_required": 33.9,
+  "seg_avg_importance": 53.1,
+  "seg_pct_required": 33.7,
   "base_avg_importance": 9.2,
   "base_pct_required": 0.4
  },
@@ -1398,6 +1402,16 @@
    "seg_avg_importance": 51.4,
    "seg_pct_required": 21.9,
    "seg_avg_relevance": 48.2,
+   "n_baseline": 0.0,
+   "base_avg_importance": 0.0,
+   "base_pct_required": 0.0
+  },
+  {
+   "date": "2026-11-24",
+   "n_segment": 95.0,
+   "seg_avg_importance": 30.1,
+   "seg_pct_required": 12.6,
+   "seg_avg_relevance": 29.7,
    "n_baseline": 0.0,
    "base_avg_importance": 0.0,
    "base_pct_required": 0.0
